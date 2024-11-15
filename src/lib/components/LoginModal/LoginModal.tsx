@@ -11,8 +11,8 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import { Alert, Stack } from '@mui/material';
-import BasePage from '../BasePage';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 import { FirebaseError } from 'firebase/app';
 import {
   FormProvider,
@@ -44,32 +44,30 @@ export const LoginModal = (_props: ILoginModalData) => {
     }
   });
   return (
-    <BasePage>
-      <FormProvider {...form}>
-        <Dialog open component={'form'} onSubmit={handeLogin}>
-          {error && <Alert action='error'>{error}</Alert>}
-          <DialogTitle>{LOGIN_DISPLAY_TEXTS.he.title}</DialogTitle>
-          <DialogContent sx={{ p: 2 }}>
-            <Stack sx={{ mt: 2 }} spacing={2}>
-              <TextFieldElement
-                label={LOGIN_DISPLAY_TEXTS.he.fields[ELoginFields.Email]}
-                name={ELoginFields.Email}
-                required
-              />
-              <PasswordElement
-                label={LOGIN_DISPLAY_TEXTS.he.fields[ELoginFields.Password]}
-                name={ELoginFields.Password}
-                required
-              />
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button type='submit'>
-              {LOGIN_DISPLAY_TEXTS.he.actions[ELoginActions.Login]}
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </FormProvider>
-    </BasePage>
+    <FormProvider {...form}>
+      <Dialog open component={'form'} onSubmit={handeLogin}>
+        {error && <Alert action='error'>{error}</Alert>}
+        <DialogTitle>{LOGIN_DISPLAY_TEXTS.he.title}</DialogTitle>
+        <DialogContent sx={{ p: 2 }}>
+          <Stack sx={{ mt: 2 }} spacing={2}>
+            <TextFieldElement
+              label={LOGIN_DISPLAY_TEXTS.he.fields[ELoginFields.Email]}
+              name={ELoginFields.Email}
+              required
+            />
+            <PasswordElement
+              label={LOGIN_DISPLAY_TEXTS.he.fields[ELoginFields.Password]}
+              name={ELoginFields.Password}
+              required
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button type='submit'>
+            {LOGIN_DISPLAY_TEXTS.he.actions[ELoginActions.Login]}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </FormProvider>
   );
 };
