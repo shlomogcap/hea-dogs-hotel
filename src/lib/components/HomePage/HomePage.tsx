@@ -14,11 +14,17 @@ import Slide from '@mui/material/Slide';
 import DialogContent from '@mui/material/DialogContent';
 import UserProfileForm from '../UserProfileForm';
 import DialogTitle from '@mui/material/DialogTitle';
+import { ILang } from '@/lib/consts/displayTexts';
 
-const pages = [
-  { route: 'dogs', title: 'My Dogs' },
-  { route: 'invitation', title: 'My Invitations' },
-];
+enum ERoutes {
+  Dogs = 'dogs',
+  Inivitations = 'invitations',
+}
+
+const DISPLAY_TEXTS: Record<ILang, Record<ERoutes, string>> = {
+  he: { [ERoutes.Dogs]: 'פרטי כלבים', [ERoutes.Inivitations]: 'ההזמנות שלי' },
+  en: { [ERoutes.Dogs]: 'My Dogs', [ERoutes.Inivitations]: 'My Invitations' },
+};
 
 const Transition = forwardRef(
   (
@@ -38,10 +44,11 @@ export const HomePage = () => {
         fullScreen
         open={userProfileOpen}
         TransitionComponent={Transition}
+        disableEscapeKeyDown={false}
+        onClose={() => setUserProfileOpen(false)}
       >
         <DialogTitle alignContent={'end'}>
           <IconButton
-            sx={{ position: 'a' }}
             color='inherit'
             onClick={() => setUserProfileOpen(false)}
             aria-label='close'
@@ -56,13 +63,13 @@ export const HomePage = () => {
       <AppBar>
         <Toolbar>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map(({ route, title }) => (
+            {Object.values(ERoutes).map((route) => (
               <Button
                 key={route}
                 onClick={() => router.push(route)}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
-                {title}
+                {DISPLAY_TEXTS.he[route]}
               </Button>
             ))}
           </Box>
