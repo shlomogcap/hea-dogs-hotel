@@ -107,7 +107,7 @@ export const BasePage = ({ children }: PropsWithChildren) => {
           </IconButton>
         </Toolbar>
       </AppBar>
-      <main>{children}</main>
+      <main style={{ marginTop: 68.5, padding: 24 }}>{children}</main>
       <MainAddButton />
     </div>
   );
