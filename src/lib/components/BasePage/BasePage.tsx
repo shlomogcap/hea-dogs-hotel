@@ -1,8 +1,6 @@
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloseIcon from '@mui/icons-material/Close';
@@ -17,6 +15,8 @@ import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import { ILang } from '@/lib/consts/displayTexts';
 import { useUserContext } from '@/lib/context/userContext';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 
 enum ERoutes {
   Dogs = '/app/dogs',
@@ -91,17 +91,16 @@ export const BasePage = ({ children }: PropsWithChildren) => {
       </Dialog>
       <AppBar>
         <Toolbar>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Tabs
+            sx={{ flexGrow: 1 }}
+            value={router.asPath}
+            onChange={(evt, v) => router.push(v)}
+            textColor='inherit'
+          >
             {Object.values(ERoutes).map((route) => (
-              <Button
-                key={route}
-                onClick={() => router.push(route)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {DISPLAY_TEXTS.he[route]}
-              </Button>
+              <Tab key={route} value={route} label={DISPLAY_TEXTS.he[route]} />
             ))}
-          </Box>
+          </Tabs>
           <IconButton onClick={() => setUserProfileOpen(true)}>
             <AccountCircleIcon sx={{ color: 'white' }} />
           </IconButton>
