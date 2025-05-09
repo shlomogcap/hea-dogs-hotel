@@ -10,8 +10,11 @@ import {
   EInvitationFormFields,
   EInvitationFormSections,
 } from './consts';
+import usePopulateUserDetails from './hooks/usePopulateUserDetails';
 
 const InvitationForm = () => {
+  usePopulateUserDetails();
+
   return (
     <Box
       sx={{
@@ -51,6 +54,7 @@ const InvitationForm = () => {
           name={EInvitationFormFields.Email}
           required
           fullWidth
+          disabled
         />
       </FormSection>
       <FormSection
