@@ -5,13 +5,13 @@ import { EInvitationFormFields } from '../consts';
 
 const usePopulateUserDetails = () => {
   const { data: userDate } = useUserContext();
-  console.log(userDate);
   const { reset } = useFormContext();
   useEffect(() => {
     if (userDate) {
       reset({
         [EInvitationFormFields.OwnerName]: userDate.displayName,
         [EInvitationFormFields.Email]: userDate.email,
+        [EInvitationFormFields.Phone]: userDate.phoneNumber,
       });
     }
   }, [reset, userDate]);
