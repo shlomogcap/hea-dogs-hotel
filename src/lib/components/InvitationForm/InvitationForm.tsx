@@ -1,8 +1,10 @@
 import { Box } from '@mui/material';
 import {
   AutocompleteElement,
+  FormProvider,
   TextareaAutosizeElement,
   TextFieldElement,
+  useForm,
 } from 'react-hook-form-mui';
 import FormSection from './components/FormSection';
 import {
@@ -12,9 +14,8 @@ import {
 } from './consts';
 import usePopulateUserDetails from './hooks/usePopulateUserDetails';
 
-const InvitationForm = () => {
+const FormInner = () => {
   usePopulateUserDetails();
-
   return (
     <Box
       sx={{
@@ -158,6 +159,15 @@ const InvitationForm = () => {
         />
       </FormSection>
     </Box>
+  );
+};
+
+const InvitationForm = () => {
+  const form = useForm({ defaultValues: {} });
+  return (
+    <FormProvider {...form}>
+      <FormInner />
+    </FormProvider>
   );
 };
 

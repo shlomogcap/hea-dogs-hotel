@@ -1,15 +1,14 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import {
-  FormProvider,
-  TextareaAutosizeElement,
-  TextFieldElement,
-  useForm,
-} from 'react-hook-form-mui';
+import { FormProvider, TextFieldElement, useForm } from 'react-hook-form-mui';
 import { DISPLAY_TEXTS } from '@/lib/consts/displayTexts';
 import Typography from '@mui/material/Typography';
 import { EUserProfileFields, fields, formTitle } from './consts';
 import usePopulateUserDetails from './hooks/usePopulateUserDetails';
+import axios from 'axios';
+import { UpdateRequest } from 'firebase-admin/lib/auth/auth-config';
+import { toast } from 'react-toastify';
+import { UserProfileFormProps } from './types';
 
 const FormInner = () => {
   usePopulateUserDetails();
@@ -34,16 +33,12 @@ const FormInner = () => {
         name={EUserProfileFields.MainPhone}
         required
       />
-      <TextareaAutosizeElement
-        name={EUserProfileFields.Comments}
-        placeholder={fields.he[EUserProfileFields.Comments]}
-      />
       <Button type='submit'>{DISPLAY_TEXTS.he.buttons.save}</Button>
     </Stack>
   );
 };
 
-export const UserProfileForm = () => {
+export const UserProfileForm = ({ onClose }: UserProfileFormProps) => {
   const form = useForm({
     defaultValues: {
       [EUserProfileFields.Name]: '',
@@ -52,7 +47,16 @@ export const UserProfileForm = () => {
     },
   });
   const onSubmit = form.handleSubmit(async (values) => {
-    console.log(values);
+    try {
+      axios.patch('/api/user/update', {
+        displayName: values[EUserProfileFields.Name],
+        phoneNumber: values[EUserProfileFields.MainPhone],
+      } as UpdateRequest);
+      toast.success('Date Updated successfully');
+      onClose();
+    } catch (err) {
+      toast.error('Update not success');
+    }
   });
   return (
     <FormProvider {...form}>

@@ -36,3 +36,5 @@ next-env.d.ts
 
 # bash script
 change-prefix.sh
+
+/.vscode/

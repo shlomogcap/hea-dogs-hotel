@@ -86,7 +86,7 @@ export const BasePage = ({ children }: PropsWithChildren) => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <UserProfileForm />
+          <UserProfileForm onClose={() => setUserProfileOpen(false)} />
         </DialogContent>
       </Dialog>
       <AppBar>

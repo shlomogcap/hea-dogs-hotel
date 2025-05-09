@@ -1,5 +1,5 @@
+import admin from '@/lib/firebase/admin';
 import { Middleware, NextFunction } from './handler';
-import { auth } from 'firebase-admin';
 import nookies from 'nookies';
 
 export const isAuthedUser =
@@ -8,7 +8,9 @@ export const isAuthedUser =
     try {
       const { token } = nookies.get({ req });
       const tokenFromHeaders = req.headers.authorization?.split(' ')[1];
-      const authedUser = await auth().verifyIdToken(token ?? tokenFromHeaders);
+      const authedUser = await admin
+        .auth()
+        .verifyIdToken(token ?? tokenFromHeaders);
       req.authedUser = authedUser;
       req.authedUsertoken = token;
       next();
