@@ -45,7 +45,7 @@ type IDisplayTextMapping = {
   boolean: Record<EBoolean, string>;
 };
 
-export const DISPLAY_TEXTS: Record<ILang, IDisplayTextMapping> = {
+export const COMMON_DISPLAY_TEXTS: Record<ILang, IDisplayTextMapping> = {
   he: {
     boolean: {
       [EBoolean.False]: 'לא',

@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { FormProvider, TextFieldElement, useForm } from 'react-hook-form-mui';
-import { DISPLAY_TEXTS } from '@/lib/consts/displayTexts';
+import { COMMON_DISPLAY_TEXTS } from '@/lib/consts/displayTexts';
 import Typography from '@mui/material/Typography';
 import { EUserProfileFields, fields, formTitle } from './consts';
 import usePopulateUserDetails from './hooks/usePopulateUserDetails';
@@ -33,7 +33,7 @@ const FormInner = () => {
         name={EUserProfileFields.MainPhone}
         required
       />
-      <Button type='submit'>{DISPLAY_TEXTS.he.buttons.save}</Button>
+      <Button type='submit'>{COMMON_DISPLAY_TEXTS.he.buttons.save}</Button>
     </Stack>
   );
 };
