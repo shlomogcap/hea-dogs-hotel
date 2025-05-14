@@ -1,10 +1,11 @@
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import {
   AutocompleteElement,
   FormProvider,
   TextareaAutosizeElement,
   TextFieldElement,
   useForm,
+  useFormContext,
 } from 'react-hook-form-mui';
 import FormSection from './components/FormSection';
 import {
@@ -13,9 +14,26 @@ import {
   EInvitationFormSections,
 } from './consts';
 import usePopulateUserDetails from './hooks/usePopulateUserDetails';
+import { COMMON_DISPLAY_TEXTS } from '@/lib/consts/displayTexts';
+import axios from 'axios';
+import { CreateInvitationBody } from '@/pages/api/invitation/create';
+import { toast } from 'react-toastify';
 
 const FormInner = () => {
   usePopulateUserDetails();
+  const { handleSubmit } = useFormContext();
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      axios.post('/api/invitation/create', {
+        startDate: '',
+        endDate: '',
+        ...values,
+      } as CreateInvitationBody);
+      toast.success('Date Updated successfully');
+    } catch (err) {
+      toast.error('Update not success');
+    }
+  });
   return (
     <Box
       sx={{
@@ -158,6 +176,7 @@ const FormInner = () => {
           fullWidth
         />
       </FormSection>
+      <Button onClick={onSubmit}>{COMMON_DISPLAY_TEXTS.he.buttons.add}</Button>
     </Box>
   );
 };
