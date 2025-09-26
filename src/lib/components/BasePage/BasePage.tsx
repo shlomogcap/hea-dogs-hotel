@@ -17,6 +17,13 @@ import { ILang } from '@/lib/consts/displayTexts';
 import { useUserContext } from '@/lib/context/userContext';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import PetsIcon from '@mui/icons-material/Pets';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 enum ERoutes {
   Dogs = '/app/dogs',
@@ -35,6 +42,12 @@ const DISPLAY_TEXTS: Record<ILang, Record<ERoutes, string>> = {
     [ERoutes.Inivitations]: 'My Invitations',
     [ERoutes.NewInvitation]: 'New Invitation',
   },
+};
+
+const ROUTE_ICONS: Record<ERoutes, JSX.Element> = {
+  [ERoutes.Dogs]: <PetsIcon />,
+  [ERoutes.Inivitations]: <EventNoteIcon />,
+  [ERoutes.NewInvitation]: <AddCircleOutlineIcon />,
 };
 
 const MainAddButton = () => {
@@ -67,6 +80,9 @@ export const BasePage = ({ children }: PropsWithChildren) => {
   const router = useRouter();
   const { preferences } = useUserContext();
   const [userProfileOpen, setUserProfileOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <div dir={preferences?.lang === 'en' ? 'ltr' : 'rtl'}>
       <Dialog
@@ -91,23 +107,89 @@ export const BasePage = ({ children }: PropsWithChildren) => {
       </Dialog>
       <AppBar>
         <Toolbar>
-          <Tabs
-            sx={{ flexGrow: 1 }}
-            value={router.asPath}
-            onChange={(evt, v) => router.push(v)}
-            textColor='inherit'
-          >
-            {Object.values(ERoutes).map((route) => (
-              <Tab key={route} value={route} label={DISPLAY_TEXTS.he[route]} />
-            ))}
-          </Tabs>
-          <IconButton onClick={() => setUserProfileOpen(true)}>
-            <AccountCircleIcon sx={{ color: 'white' }} />
-          </IconButton>
+          {!isMobile ? (
+            <>
+              <Tabs
+                sx={{ flexGrow: 1 }}
+                value={
+                  Object.values(ERoutes).includes(router.asPath as ERoutes)
+                    ? router.asPath
+                    : false
+                }
+                onChange={(evt, v) => router.push(v)}
+                textColor='inherit'
+              >
+                {Object.values(ERoutes).map((route) => (
+                  <Tab
+                    key={route}
+                    value={route}
+                    label={DISPLAY_TEXTS[preferences?.lang || 'he'][route]}
+                  />
+                ))}
+              </Tabs>
+              <IconButton onClick={() => setUserProfileOpen(true)}>
+                <AccountCircleIcon sx={{ color: 'white' }} />
+              </IconButton>
+            </>
+          ) : (
+            <div
+              style={{
+                width: '100%',
+                textAlign: 'center',
+                fontWeight: 500,
+                fontSize: 20,
+              }}
+            >
+              {DISPLAY_TEXTS[preferences?.lang || 'he'][
+                router.asPath as ERoutes
+              ] || ''}
+            </div>
+          )}
         </Toolbar>
       </AppBar>
-      <main style={{ marginTop: 68.5, padding: 24 }}>{children}</main>
-      <MainAddButton />
+      {isMobile && (
+        <BottomNavigation
+          showLabels={false}
+          value={
+            Object.values(ERoutes).includes(router.asPath as ERoutes)
+              ? router.asPath
+              : false
+          }
+          onChange={(evt, v) => {
+            if (v === 'profile') setUserProfileOpen(true);
+            else router.push(v);
+          }}
+          sx={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: theme.zIndex.appBar,
+          }}
+        >
+          {Object.values(ERoutes).map((route) => (
+            <BottomNavigationAction
+              key={route}
+              value={route}
+              icon={ROUTE_ICONS[route]}
+            />
+          ))}
+          <BottomNavigationAction
+            icon={<AccountCircleIcon />}
+            value='profile'
+          />
+        </BottomNavigation>
+      )}
+      <main
+        style={{
+          marginTop: 68.5,
+          marginBottom: isMobile ? 56 : 0,
+          padding: 24,
+        }}
+      >
+        {children}
+      </main>
+      {!isMobile && <MainAddButton />}
     </div>
   );
 };

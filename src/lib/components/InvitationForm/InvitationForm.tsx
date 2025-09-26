@@ -1,10 +1,8 @@
-import { Box, Button } from '@mui/material';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import {
-  AutocompleteElement,
-  FormProvider,
-  TextareaAutosizeElement,
   TextFieldElement,
-  useForm,
+  useFieldArray,
   useFormContext,
 } from 'react-hook-form-mui';
 import FormSection from './components/FormSection';
@@ -15,34 +13,36 @@ import {
 } from './consts';
 import usePopulateUserDetails from './hooks/usePopulateUserDetails';
 import { COMMON_DISPLAY_TEXTS } from '@/lib/consts/displayTexts';
-import axios from 'axios';
-import { CreateInvitationBody } from '@/pages/api/invitation/create';
-import { toast } from 'react-toastify';
+import DogSection from './components/DogSection';
 
-const FormInner = () => {
+type InvitationFormProps = {
+  disabled?: boolean;
+  onFormSubmit: (values: any) => void;
+};
+
+const InvitationForm = ({ disabled, onFormSubmit }: InvitationFormProps) => {
   usePopulateUserDetails();
   const { handleSubmit } = useFormContext();
-  const onSubmit = handleSubmit(async (values) => {
-    try {
-      axios.post('/api/invitation/create', {
-        startDate: '',
-        endDate: '',
-        ...values,
-      } as CreateInvitationBody);
-      toast.success('Date Updated successfully');
-    } catch (err) {
-      toast.error('Update not success');
-    }
-  });
+  const onSubmit = handleSubmit(onFormSubmit);
+  const {
+    fields: dogs,
+    append: appendDog,
+    remove,
+  } = useFieldArray({ name: 'dogs' });
   return (
     <Box
       sx={{
-        p: 2,
+        p: { xs: 0.5, sm: 2 },
         borderRadius: 2,
         display: 'grid',
         placeItems: 'center',
         bgcolor: 'grey.100',
-        rowGap: 2,
+        rowGap: { xs: 1.5, sm: 2 },
+        maxWidth: '100vw',
+        minWidth: 0,
+        mx: 'auto',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
       }}
     >
       <FormSection
@@ -55,24 +55,31 @@ const FormInner = () => {
           name={EInvitationFormFields.OwnerName}
           required
           fullWidth
+          sx={{ minWidth: 0, width: '100%' }}
+          disabled={disabled}
         />
         <TextFieldElement
           label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.OwnerId]}
           name={EInvitationFormFields.OwnerId}
           required
           fullWidth
+          sx={{ minWidth: 0, width: '100%' }}
+          disabled={disabled}
         />
         <TextFieldElement
           label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.Phone]}
           name={EInvitationFormFields.Phone}
           required
           fullWidth
+          sx={{ minWidth: 0, width: '100%' }}
+          disabled={disabled}
         />
         <TextFieldElement
           label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.Email]}
           name={EInvitationFormFields.Email}
           required
           fullWidth
+          sx={{ minWidth: 0, width: '100%' }}
           disabled
         />
       </FormSection>
@@ -94,6 +101,8 @@ const FormInner = () => {
           name={EInvitationFormFields.SDate}
           fullWidth
           required
+          sx={{ minWidth: 0, width: '100%' }}
+          disabled={disabled}
         />
         <TextFieldElement
           type='time'
@@ -105,6 +114,8 @@ const FormInner = () => {
           label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.SHour]}
           name={EInvitationFormFields.SHour}
           fullWidth
+          sx={{ minWidth: 0, width: '100%' }}
+          disabled={disabled}
         />
         <TextFieldElement
           type='date'
@@ -117,6 +128,8 @@ const FormInner = () => {
           name={EInvitationFormFields.EDate}
           required
           fullWidth
+          sx={{ minWidth: 0, width: '100%' }}
+          disabled={disabled}
         />
         <TextFieldElement
           type='time'
@@ -128,6 +141,8 @@ const FormInner = () => {
           label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.EHour]}
           name={EInvitationFormFields.EHour}
           fullWidth
+          sx={{ minWidth: 0, width: '100%' }}
+          disabled={disabled}
         />
       </FormSection>
       <FormSection
@@ -135,58 +150,29 @@ const FormInner = () => {
           DISPLAY_TEXTS.formSections.he[EInvitationFormSections.DogDetails]
         }
       >
-        <TextFieldElement
-          label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.DogName]}
-          name={EInvitationFormFields.DogName}
-          required
-          fullWidth
-        />
-        <AutocompleteElement
-          label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.DogGender]}
-          name={EInvitationFormFields.DogGender}
-          options={DISPLAY_TEXTS.genderOptions.he}
-          autocompleteProps={{
-            fullWidth: true,
-            getOptionLabel: (v) => v.label,
-            isOptionEqualToValue: (opt, v) => opt?.value === v?.value,
-          }}
-          required
-        />
-        <TextFieldElement
-          label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.DogBread]}
-          name={EInvitationFormFields.DogBread}
-          required
-          fullWidth
-        />
-        <TextFieldElement
-          type='number'
-          label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.DogAge]}
-          name={EInvitationFormFields.DogAge}
-          required
-          fullWidth
-        />
-        <TextareaAutosizeElement
-          label={
-            DISPLAY_TEXTS.formFields.he[
-              EInvitationFormFields.DogPhysicalDescription
-            ]
-          }
-          name={EInvitationFormFields.DogPhysicalDescription}
-          required
-          fullWidth
-        />
+        {dogs.map((_, index) => {
+          const prefix = `dogs.${index}.` as const;
+          return (
+            <DogSection
+              key={prefix}
+              prefix={prefix}
+              onRemove={() => remove(index)}
+              disabled={disabled}
+            />
+          );
+        })}
+        <FormSection>
+          <Button onClick={appendDog} fullWidth sx={{ mt: 2 }}>
+            הוספת כלב
+          </Button>
+        </FormSection>
       </FormSection>
-      <Button onClick={onSubmit}>{COMMON_DISPLAY_TEXTS.he.buttons.add}</Button>
+      {!disabled && (
+        <Button onClick={onSubmit} fullWidth sx={{ mt: 2 }}>
+          {COMMON_DISPLAY_TEXTS.he.buttons.add}
+        </Button>
+      )}
     </Box>
-  );
-};
-
-const InvitationForm = () => {
-  const form = useForm({ defaultValues: {} });
-  return (
-    <FormProvider {...form}>
-      <FormInner />
-    </FormProvider>
   );
 };
 

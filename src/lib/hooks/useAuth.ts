@@ -17,9 +17,11 @@ export const useAuth = () => {
           const token = await user.getIdToken();
           setUser(user);
           nookies.set(undefined, 'token', token, { path: '/' });
+          nookies.set(undefined, 'uid', user.uid, { path: '/' });
         } else {
           setUser(null);
           nookies.set(undefined, 'token', '', { path: '/' });
+          nookies.set(undefined, 'uid', '', { path: '/' });
         }
         setLoading(false);
       },

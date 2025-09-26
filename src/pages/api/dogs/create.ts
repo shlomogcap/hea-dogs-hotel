@@ -16,7 +16,19 @@ export type IDogDoc = WithId<{
   dogPhysicalDescription: string;
 }>;
 
-export type CreateDogBody = IDogDoc;
+export type IInvitationDoc = WithId<{
+  ownerName: string;
+  ownerId: string;
+  phone: string;
+  email: string;
+  startDate: string;
+  endDate: string;
+  sHour: string;
+  eHour: string;
+  dogs: IDogDoc[];
+}>;
+
+export type CreateInvitationBody = IInvitationDoc;
 
 type Data = {
   success: boolean;
@@ -24,19 +36,19 @@ type Data = {
   info?: object;
 };
 
-const createDog = async (
-  req: NextApiRequest<CreateDogBody>,
+const createInvitation = async (
+  req: NextApiRequest<CreateInvitationBody>,
   res: NextApiResponse<Data>,
 ) => {
   try {
-    const dogsCol = collection(
+    const invitationsCol = collection(
       firestore,
-      `/workspace/${req.authedUser?.uid}/dogs`,
+      `/workspace/${req.authedUser?.uid}/invitations`,
     );
-    const result = await addDoc(dogsCol, req.body);
+    const result = await addDoc(invitationsCol, req.body);
     return res.status(200).json({
       success: true,
-      message: 'dog created',
+      message: 'invitation created',
       info: {
         id: result.id,
       },
@@ -54,5 +66,5 @@ const createDog = async (
 export default handler(
   methodsGuard([HttpMethod.Post]),
   isAuthedUser(),
-  createDog,
+  createInvitation,
 );
