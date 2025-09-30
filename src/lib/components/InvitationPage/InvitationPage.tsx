@@ -9,7 +9,6 @@ import { useEffect } from 'react';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useUserContext } from '@/lib/context/userContext';
-import { DogsProvider } from '@/lib/context/userDogsContext';
 
 const InvitationPageInner = () => {
   const { data } = useInvitationPageContext();
@@ -42,13 +41,9 @@ const InvitationPageInner = () => {
 const InvitationPage = () => {
   const router = useRouter();
   return (
-    <DogsProvider>
-      <InvitationPageProvider
-        invitationId={router.query.invitationId as string}
-      >
-        <InvitationPageInner />
-      </InvitationPageProvider>
-    </DogsProvider>
+    <InvitationPageProvider invitationId={router.query.invitationId as string}>
+      <InvitationPageInner />
+    </InvitationPageProvider>
   );
 };
 

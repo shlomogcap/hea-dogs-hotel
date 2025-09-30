@@ -13,15 +13,28 @@ import { DISPLAY_TEXTS, EInvitationFormFields } from '../consts';
 import { useRef, useState } from 'react';
 import DogSelect, { ADD_DOG_VALUE } from './DogSelect';
 import { Stack } from '@mui/material';
-import { CreateDogBody } from '@/pages/api/invitation/create';
+import { CreateDogsBody, IDogDoc } from '@/pages/api/dogs/create';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import get from 'lodash/get';
 
 type DogSectionProps = {
   disabled?: boolean;
   onRemove: () => void;
   prefix: string;
 };
+
+const GetDogValuesWithPrefix =
+  (prefix: string) =>
+  (values: any): Partial<IDogDoc> => ({
+    dogAge: get(values, prefix + EInvitationFormFields.DogAge) ?? 0,
+    dogBread: get(values, prefix + EInvitationFormFields.DogBread) ?? '',
+    dogGender:
+      get(values, prefix + EInvitationFormFields.DogGender)?.value ?? '',
+    dogName: get(values, prefix + EInvitationFormFields.DogName) ?? '',
+    dogPhysicalDescription:
+      get(values, prefix + EInvitationFormFields.DogPhysicalDescription) ?? '',
+  });
 
 const DogSectionInner = ({ disabled, onRemove, prefix }: DogSectionProps) => {
   const [formEditable, setFormEditable] = useState(false);
@@ -30,15 +43,15 @@ const DogSectionInner = ({ disabled, onRemove, prefix }: DogSectionProps) => {
   const { setValue, handleSubmit } = useFormContext();
   const isDisabled = !formEditable || disabled;
   const dogNameRef = useRef<HTMLInputElement>(null);
-  const createNewDog = handleSubmit(async (values) => {
+  const getDogValues = GetDogValuesWithPrefix(prefix);
+  const createNewDogs = handleSubmit(async (values) => {
     try {
-      const result = await axios.post('/api/dogs/create', {
-        ...values,
-      } as CreateDogBody);
+      const data: CreateDogsBody = values.dogs.map(() => getDogValues(values));
+      const result = await axios.post('/api/dogs/create', data);
       if (!result.data.success) throw new Error(result.data.message);
-      toast.success('Invitation Created successfully');
+      toast.success('Dog Created successfully');
     } catch (err) {
-      toast.error('Invitation Failed to create' + (err as Error).message);
+      toast.error('Dog Failed to create' + (err as Error).message);
     }
   });
   return (
@@ -120,7 +133,7 @@ const DogSectionInner = ({ disabled, onRemove, prefix }: DogSectionProps) => {
         sx={{ mt: 1, alignContent: 'flex-end' }}
       >
         {dogSelect?.value === ADD_DOG_VALUE && (
-          <Button onClick={createNewDog} sx={{ alignSelf: 'end' }}>
+          <Button onClick={createNewDogs} sx={{ alignSelf: 'end' }}>
             הוסף
           </Button>
         )}

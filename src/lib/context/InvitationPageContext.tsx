@@ -9,8 +9,10 @@ import { auth, firestore } from '@firebase';
 import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { IInvitationDoc } from '../../pages/api/invitation/create';
 import { onSnapshotHandler } from '../utils/onSnapshotHandler';
+import { IDogDoc } from '@/pages/api/dogs/create';
 
 type IData = {
+  dogs: IDogDoc[];
   invitations: IInvitationDoc[];
   currentInvitation: IInvitationDoc;
 };
@@ -28,6 +30,7 @@ type IInvitationsProviderProps = {
 const InvitationPageContext = createContext<IInvitationContext>({
   data: {
     invitations: [] as IInvitationDoc[],
+    dogs: [] as IDogDoc[],
     currentInvitation: {} as IInvitationDoc,
   },
   isLoading: false,
@@ -46,6 +49,7 @@ export const InvitationPageProvider = ({
   const [otherInvitationsData, setOtherInvitationsData] = useState<
     IInvitationDoc[]
   >([]);
+  const [dogs, setDogs] = useState<IDogDoc[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -66,28 +70,42 @@ export const InvitationPageProvider = ({
         }
       },
     );
-    const collectionRef = collection(
+    const invitationsCollectionRef = collection(
       firestore,
       `/workspace/${auth?.currentUser?.uid}/invitations`,
     );
 
     const otherInvitationsSubscription = onSnapshotHandler({
-      collectionRef,
+      collectionRef: invitationsCollectionRef,
       setIsLoading,
       setData: setOtherInvitationsData,
       setError,
     });
 
+    const dogsCollectionRef = collection(
+      firestore,
+      `/workspace/${auth?.currentUser?.uid}/dogs`,
+    );
+
+    const dogsSubscription = onSnapshotHandler({
+      collectionRef: dogsCollectionRef,
+      setIsLoading,
+      setData: setDogs,
+      setError,
+    });
+
     return () =>
-      [currentInvitationSubscription, otherInvitationsSubscription].forEach(
-        (unsubscribe) => unsubscribe(),
-      );
+      [
+        currentInvitationSubscription,
+        otherInvitationsSubscription,
+        dogsSubscription,
+      ].forEach((unsubscribe) => unsubscribe());
   }, [invitationId]);
 
   return (
     <InvitationPageContext.Provider
       value={{
-        data: { invitations: otherInvitationsData, currentInvitation },
+        data: { invitations: otherInvitationsData, currentInvitation, dogs },
         isLoading,
         error,
       }}

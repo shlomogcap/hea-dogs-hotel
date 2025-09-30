@@ -1,9 +1,13 @@
-import { IDogDoc, IInvitationDoc } from '@/pages/api/invitation/create';
+import { IDogDoc } from '@/pages/api/dogs/create';
+import { IInvitationDoc } from '@/pages/api/invitation/create';
 import { TableColumn } from '../common/Table/Table';
+import { ILang } from '@/lib/consts/displayTexts';
+
+type InvitationLabelsFields = keyof IInvitationDoc | 'dogsNames';
 
 export const INVITATION_LABELS: Record<
   'en' | 'he',
-  Record<keyof IInvitationDoc, string>
+  Record<InvitationLabelsFields, string>
 > = {
   en: {
     id: '#',
@@ -16,6 +20,7 @@ export const INVITATION_LABELS: Record<
     sHour: 'Start Hour',
     eHour: 'End Hour',
     dogs: 'Dogs',
+    dogsNames: '',
   },
   he: {
     id: '#',
@@ -28,9 +33,10 @@ export const INVITATION_LABELS: Record<
     sHour: 'שעת התחלה',
     eHour: 'שעת סיום',
     dogs: 'פרטי כלבים',
+    dogsNames: '',
   },
 };
-export const DOGS_LABELS: Record<'en' | 'he', Record<keyof IDogDoc, string>> = {
+export const DOGS_LABELS: Record<ILang, Record<keyof IDogDoc, string>> = {
   en: {
     id: '#',
     dogName: 'Dog Name',
@@ -38,6 +44,7 @@ export const DOGS_LABELS: Record<'en' | 'he', Record<keyof IDogDoc, string>> = {
     dogBread: 'Dog Breed',
     dogAge: 'Dog Age',
     dogPhysicalDescription: 'Dog Physical Description',
+    dogId: '',
   },
   he: {
     id: '#',
@@ -46,10 +53,11 @@ export const DOGS_LABELS: Record<'en' | 'he', Record<keyof IDogDoc, string>> = {
     dogBread: 'גזע הכלב',
     dogAge: 'גיל הכלב',
     dogPhysicalDescription: 'תיאור פיזי של הכלב',
+    dogId: '',
   },
 };
 
-const lang: 'en' | 'he' = 'he';
+const lang: ILang = 'he';
 const align = lang === 'he' ? 'right' : 'left';
 
 type TableColumnNoField = Omit<TableColumn, 'field'>;
@@ -79,7 +87,7 @@ const INVITATIONS_COLUMNS: Partial<
   },
 };
 
-const getColumns = (lang: 'en' | 'he') =>
+const getColumns = (lang: ILang) =>
   Object.entries(INVITATIONS_COLUMNS).map(([k, v]) => ({
     ...v,
     field: k,

@@ -3,9 +3,9 @@ import { handler } from '../middleware/handler';
 import { HttpMethod, methodsGuard } from '../middleware/method';
 import { isAuthedUser } from '../middleware/isAuthedUser';
 import { firestore } from '@/lib/firebase';
-import { addDoc, collection } from 'firebase/firestore';
-
-type WithId<T> = T & { id: string };
+import { collection, writeBatch, doc } from 'firebase/firestore';
+import { WithId } from '../_utils';
+import { uuid } from '@/lib/utils/uuid';
 
 export type IDogDoc = WithId<{
   dogId: string;
@@ -16,19 +16,7 @@ export type IDogDoc = WithId<{
   dogPhysicalDescription: string;
 }>;
 
-export type IInvitationDoc = WithId<{
-  ownerName: string;
-  ownerId: string;
-  phone: string;
-  email: string;
-  startDate: string;
-  endDate: string;
-  sHour: string;
-  eHour: string;
-  dogs: IDogDoc[];
-}>;
-
-export type CreateInvitationBody = IInvitationDoc;
+export type CreateDogsBody = IDogDoc[];
 
 type Data = {
   success: boolean;
@@ -36,22 +24,29 @@ type Data = {
   info?: object;
 };
 
-const createInvitation = async (
-  req: NextApiRequest<CreateInvitationBody>,
+const createDog = async (
+  req: NextApiRequest<CreateDogsBody>,
   res: NextApiResponse<Data>,
 ) => {
   try {
-    const invitationsCol = collection(
+    const batch = writeBatch(firestore);
+    const dogsCol = collection(
       firestore,
-      `/workspace/${req.authedUser?.uid}/invitations`,
+      `/workspace/${req.authedUser?.uid}/dogs`,
     );
-    const result = await addDoc(invitationsCol, req.body);
+    const requestWithIds = req.body.map((dogData) => ({
+      ...dogData,
+      dogId: dogData.dogId ?? uuid(),
+    }));
+    for (const dogData of requestWithIds) {
+      const dogsDoc = doc(dogsCol, dogData.dogId);
+      batch.set(dogsDoc, dogData);
+    }
+    await batch.commit();
     return res.status(200).json({
       success: true,
-      message: 'invitation created',
-      info: {
-        id: result.id,
-      },
+      message: 'dogs created',
+      info: { ids: requestWithIds.map((d) => d.dogId) },
     });
   } catch (err) {
     const isFirebaseError = err instanceof FirebaseError;
@@ -66,5 +61,5 @@ const createInvitation = async (
 export default handler(
   methodsGuard([HttpMethod.Post]),
   isAuthedUser(),
-  createInvitation,
+  createDog,
 );

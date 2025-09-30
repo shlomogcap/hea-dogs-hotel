@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { auth, firestore } from '@firebase';
 import { collection } from 'firebase/firestore';
-import { IDogDoc } from '../../pages/api/invitation/create';
+import { IDogDoc } from '../../pages/api/dogs/create';
 import { onSnapshotHandler } from '../utils/onSnapshotHandler';
 
 type IDogsContext = {

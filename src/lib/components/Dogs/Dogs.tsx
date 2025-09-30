@@ -1,25 +1,20 @@
-import {
-  InvitationsProvider,
-  useInvitationsContext,
-} from '@/lib/context/userInvitationsContext';
+import { DogsProvider, useDogsContext } from '@/lib/context/userDogsContext';
 import Table from '../common/Table';
 import getColumns from './columns';
 import { useRouter } from 'next/router';
 import List from '@mui/material/List';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import { formatDate } from '@/lib/utils/dateUtils';
 import { useUserContext } from '@/lib/context/userContext';
-import { DogsProvider } from '@/lib/context/userDogsContext';
-import { IInvitationDoc } from '@/pages/api/invitation/create';
+import { IDogDoc } from '@/pages/api/dogs/create';
 import ListItem from '../common/ListItem';
 
-const InvitationsList = ({
+const DogsList = ({
   data,
   onRowClick,
 }: {
-  data: IInvitationDoc[];
-  onRowClick: (row: IInvitationDoc) => void;
+  data: IDogDoc[];
+  onRowClick: (row: IDogDoc) => void;
 }) => (
   <List
     sx={{
@@ -33,15 +28,14 @@ const InvitationsList = ({
       <ListItem
         key={row.id}
         onRowClick={() => onRowClick(row)}
-        title={row?.dogs?.map((dog) => dog.dogName).join(', ')}
-        subtitle={`${formatDate(row.startDate)} - ${formatDate(row.endDate)}`}
+        title={row?.dogName}
       />
     ))}
   </List>
 );
 
-const InvitationsInner = () => {
-  const { data, isLoading } = useInvitationsContext();
+const DogsInner = () => {
+  const { data, isLoading } = useDogsContext();
   const { preferences } = useUserContext();
   const router = useRouter();
   const theme = useTheme();
@@ -50,9 +44,9 @@ const InvitationsInner = () => {
 
   if (isMobile) {
     return (
-      <InvitationsList
+      <DogsList
         data={data}
-        onRowClick={({ id }) => router.push(`/app/invitations/${id}`)}
+        onRowClick={({ id }) => router.push(`/app/dogs/${id}`)}
       />
     );
   }
@@ -63,20 +57,20 @@ const InvitationsInner = () => {
       columns={columns}
       disableRowSelectionOnClick
       onRowClick={({ id }) => {
-        router.push(`/app/invitations/${id}`);
+        router.push(`/app/dogs/${id}`);
       }}
     />
   );
 };
 
-const Invitations = () => {
+const Dogs = () => {
   return (
-    <InvitationsProvider>
+    <DogsProvider>
       <DogsProvider>
-        <InvitationsInner />
+        <DogsInner />
       </DogsProvider>
-    </InvitationsProvider>
+    </DogsProvider>
   );
 };
 
-export default Invitations;
+export default Dogs;

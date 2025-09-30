@@ -2,7 +2,7 @@ import { AutocompleteElement } from 'react-hook-form-mui';
 import { useDogsContext } from '@/lib/context/userDogsContext';
 import { ILang } from '@/lib/consts/displayTexts';
 import { useUserContext } from '@/lib/context/userContext';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { DISPLAY_TEXTS, EInvitationFormFields } from '../consts';
 import { Button } from '@mui/material';
 
@@ -29,6 +29,9 @@ const DogSelect = ({ name, disabled, onSelect }: DogSelectProps) => {
     }),
     [preferences.lang],
   );
+  useEffect(() => {
+    console.log('dogs data:', dogs);
+  }, [dogs]);
   return (
     <AutocompleteElement
       label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.DogName]}

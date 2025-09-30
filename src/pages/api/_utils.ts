@@ -6,3 +6,5 @@ export const getAbsoluteApiPath = ({ headers }: NextApiRequest, path: string) =>
 export const getAuthorizationHeader = (req: NextApiRequest) => ({
   Authorization: `Bearer ${req.authedUsertoken}`,
 });
+
+export type WithId<T> = T & { id: string };
