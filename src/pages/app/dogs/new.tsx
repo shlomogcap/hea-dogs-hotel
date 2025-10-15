@@ -1,5 +1,10 @@
-import DogForm from '@/lib/components/Dogs/DogForm';
+import SSRGuard from '@/lib/components/common/SSRGuard/SSRGuard';
+import NewDogPage from '@/lib/components/Dogs/NewDogPage';
 
 export default function NewDogRoute() {
-  return <DogForm prefix='' />;
+  return (
+    <SSRGuard>
+      <NewDogPage />
+    </SSRGuard>
+  );
 }
