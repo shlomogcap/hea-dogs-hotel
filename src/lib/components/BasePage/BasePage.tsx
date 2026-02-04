@@ -11,11 +11,13 @@ import Slide from '@mui/material/Slide';
 import DialogContent from '@mui/material/DialogContent';
 import UserProfileForm from '../UserProfileForm';
 import DialogTitle from '@mui/material/DialogTitle';
-import SpeedDial from '@mui/material/SpeedDial';
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import { ILang } from '@/lib/consts/displayTexts';
 import { useUserContext } from '@/lib/context/userContext';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
 import Tab from '@mui/material/Tab';
+import Button from '@mui/material/Button';
+import LogoutIcon from '@mui/icons-material/Logout';
 import Tabs from '@mui/material/Tabs';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
@@ -27,18 +29,36 @@ import { useTheme } from '@mui/material/styles';
 
 enum ERoutes {
   Dogs = '/app/dogs',
+  NewDog = '/app/dogs/new',
   Inivitations = '/app/invitations',
   NewInvitation = '/app/invitations/new',
 }
 
+/** Routes that appear as main tabs (New Dog is only reachable from Dogs page) */
+const MAIN_TAB_ROUTES: ERoutes[] = [
+  ERoutes.Dogs,
+  ERoutes.Inivitations,
+  ERoutes.NewInvitation,
+];
+
+const getSelectedTab = (pathname: string): ERoutes | false => {
+  const path = pathname.split('?')[0];
+  if (path.startsWith(ERoutes.Dogs)) return ERoutes.Dogs;
+  if (path === ERoutes.NewInvitation) return ERoutes.NewInvitation;
+  if (path.startsWith(ERoutes.Inivitations)) return ERoutes.Inivitations;
+  return false;
+};
+
 const DISPLAY_TEXTS: Record<ILang, Record<ERoutes, string>> = {
   he: {
     [ERoutes.Dogs]: 'פרטי כלבים',
+    [ERoutes.NewDog]: 'הוספת כלב',
     [ERoutes.Inivitations]: 'ההזמנות שלי',
     [ERoutes.NewInvitation]: 'הזמנת מקום לפנסיון',
   },
   en: {
     [ERoutes.Dogs]: 'My Dogs',
+    [ERoutes.NewDog]: 'New Dog',
     [ERoutes.Inivitations]: 'My Invitations',
     [ERoutes.NewInvitation]: 'New Invitation',
   },
@@ -46,25 +66,14 @@ const DISPLAY_TEXTS: Record<ILang, Record<ERoutes, string>> = {
 
 const ROUTE_ICONS: Record<ERoutes, JSX.Element> = {
   [ERoutes.Dogs]: <PetsIcon />,
+  [ERoutes.NewDog]: <AddCircleOutlineIcon />,
   [ERoutes.Inivitations]: <EventNoteIcon />,
   [ERoutes.NewInvitation]: <AddCircleOutlineIcon />,
 };
 
-const MainAddButton = () => {
-  const router = useRouter();
-  const handleAddInvitation = () => {
-    router.push(ERoutes.NewInvitation);
-  };
-
-  return (
-    <SpeedDial
-      ariaLabel='Add An Invitation'
-      sx={{ position: 'fixed', bottom: 16, insetInlineEnd: 16 }}
-      icon={<SpeedDialIcon />}
-      onClick={handleAddInvitation}
-      open={false} // Keeps the SpeedDial from expanding
-    />
-  );
+const SIGN_OUT_LABEL: Record<ILang, string> = {
+  he: 'התנתק',
+  en: 'Sign out',
 };
 
 const Transition = forwardRef(
@@ -103,6 +112,18 @@ export const BasePage = ({ children }: PropsWithChildren) => {
         </DialogTitle>
         <DialogContent>
           <UserProfileForm onClose={() => setUserProfileOpen(false)} />
+          <Button
+            startIcon={<LogoutIcon />}
+            color='error'
+            onClick={() => {
+              signOut(auth);
+              setUserProfileOpen(false);
+            }}
+            sx={{ mt: 3 }}
+            fullWidth
+          >
+            {SIGN_OUT_LABEL[preferences?.lang ?? 'he']}
+          </Button>
         </DialogContent>
       </Dialog>
       <AppBar>
@@ -111,15 +132,11 @@ export const BasePage = ({ children }: PropsWithChildren) => {
             <>
               <Tabs
                 sx={{ flexGrow: 1 }}
-                value={
-                  Object.values(ERoutes).includes(router.asPath as ERoutes)
-                    ? router.asPath
-                    : false
-                }
+                value={getSelectedTab(router.asPath)}
                 onChange={(evt, v) => router.push(v)}
                 textColor='inherit'
               >
-                {Object.values(ERoutes).map((route) => (
+                {MAIN_TAB_ROUTES.map((route) => (
                   <Tab
                     key={route}
                     value={route}
@@ -150,11 +167,7 @@ export const BasePage = ({ children }: PropsWithChildren) => {
       {isMobile && (
         <BottomNavigation
           showLabels={false}
-          value={
-            Object.values(ERoutes).includes(router.asPath as ERoutes)
-              ? router.asPath
-              : false
-          }
+          value={getSelectedTab(router.asPath)}
           onChange={(evt, v) => {
             if (v === 'profile') setUserProfileOpen(true);
             else router.push(v);
@@ -167,7 +180,7 @@ export const BasePage = ({ children }: PropsWithChildren) => {
             zIndex: theme.zIndex.appBar,
           }}
         >
-          {Object.values(ERoutes).map((route) => (
+          {MAIN_TAB_ROUTES.map((route) => (
             <BottomNavigationAction
               key={route}
               value={route}
@@ -189,7 +202,6 @@ export const BasePage = ({ children }: PropsWithChildren) => {
       >
         {children}
       </main>
-      {!isMobile && <MainAddButton />}
     </div>
   );
 };

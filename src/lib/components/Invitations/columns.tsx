@@ -2,6 +2,12 @@ import { IDogDoc } from '@/pages/api/dogs/create';
 import { IInvitationDoc } from '@/pages/api/invitation/create';
 import { TableColumn } from '../common/Table/Table';
 import { ILang } from '@/lib/consts/displayTexts';
+import Chip from '@mui/material/Chip';
+import {
+  EInvitationStatus,
+  INVITATION_STATUS_LABELS,
+  INVITATION_STATUS_COLORS,
+} from '../InvitationForm/consts';
 
 type InvitationLabelsFields = keyof IInvitationDoc | 'dogsNames';
 
@@ -15,6 +21,7 @@ export const INVITATION_LABELS: Record<
     ownerId: 'Owner ID',
     phone: 'Phone',
     email: 'Email',
+    status: 'Status',
     startDate: 'Start Date',
     endDate: 'End Date',
     sHour: 'Start Hour',
@@ -28,6 +35,7 @@ export const INVITATION_LABELS: Record<
     ownerId: 'מזהה בעלים',
     phone: 'טלפון',
     email: 'אימייל',
+    status: 'סטטוס',
     startDate: 'תאריך התחלה',
     endDate: 'תאריך סיום',
     sHour: 'שעת התחלה',
@@ -62,9 +70,30 @@ const align = lang === 'he' ? 'right' : 'left';
 
 type TableColumnNoField = Omit<TableColumn, 'field'>;
 
-const INVITATIONS_COLUMNS: Partial<
-  Record<keyof IInvitationDoc, TableColumnNoField>
-> & { dogsNames: TableColumnNoField } = {
+const getInvitationsColumns = (
+  lang: ILang,
+): Partial<Record<keyof IInvitationDoc, TableColumnNoField>> & {
+  dogsNames: TableColumnNoField;
+} => ({
+  status: {
+    width: 140,
+    align,
+    renderCell: (params) => {
+      const value =
+        (params.value as EInvitationStatus | undefined) ??
+        EInvitationStatus.Draft;
+      const label = INVITATION_STATUS_LABELS[lang][value];
+      const color = INVITATION_STATUS_COLORS[value];
+      return (
+        <Chip
+          label={label}
+          color={color as 'default' | 'primary' | 'error' | 'info' | 'success'}
+          size='small'
+          variant='outlined'
+        />
+      );
+    },
+  },
   startDate: {
     width: 150,
     align,
@@ -85,10 +114,10 @@ const INVITATIONS_COLUMNS: Partial<
     valueGetter: (row: any) =>
       row?.dogs?.map((d: IDogDoc) => d.dogName).join(', ') ?? '-',
   },
-};
+});
 
 const getColumns = (lang: ILang) =>
-  Object.entries(INVITATIONS_COLUMNS).map(([k, v]) => ({
+  Object.entries(getInvitationsColumns(lang)).map(([k, v]) => ({
     ...v,
     field: k,
     headerName: INVITATION_LABELS[lang][k as keyof IInvitationDoc],

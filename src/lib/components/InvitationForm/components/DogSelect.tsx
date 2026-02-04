@@ -2,7 +2,7 @@ import { AutocompleteElement } from 'react-hook-form-mui';
 import { useDogsContext } from '@/lib/context/userDogsContext';
 import { ILang } from '@/lib/consts/displayTexts';
 import { useUserContext } from '@/lib/context/userContext';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { DISPLAY_TEXTS, EInvitationFormFields } from '../consts';
 import { Button } from '@mui/material';
 
@@ -17,9 +17,16 @@ type DogSelectProps = {
   name: string;
   disabled?: boolean;
   onSelect: (dog: any) => void;
+  /** Dog IDs already selected in other slots (excluded from options) */
+  excludeDogIds?: string[];
 };
 
-const DogSelect = ({ name, disabled, onSelect }: DogSelectProps) => {
+const DogSelect = ({
+  name,
+  disabled,
+  onSelect,
+  excludeDogIds = [],
+}: DogSelectProps) => {
   const { data: dogs } = useDogsContext();
   const { preferences } = useUserContext();
   const ADD_DOG_OPTION = useMemo(
@@ -29,17 +36,20 @@ const DogSelect = ({ name, disabled, onSelect }: DogSelectProps) => {
     }),
     [preferences.lang],
   );
-  useEffect(() => {
-    console.log('dogs data:', dogs);
-  }, [dogs]);
+  const options = useMemo(
+    () => [
+      ...(dogs
+        ?.filter((d) => !excludeDogIds.includes(d.id))
+        .map((d) => ({ value: d.id, label: d.dogName })) ?? []),
+      ...(disabled ? [] : [ADD_DOG_OPTION]),
+    ],
+    [dogs, excludeDogIds, ADD_DOG_OPTION, disabled],
+  );
   return (
     <AutocompleteElement
       label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.DogName]}
       name={name}
-      options={[
-        ...(dogs.map((d) => ({ value: d.id, label: d.dogName })) || []),
-        ADD_DOG_OPTION,
-      ]}
+      options={options}
       autocompleteProps={{
         fullWidth: true,
         getOptionLabel: (v) => v.label,

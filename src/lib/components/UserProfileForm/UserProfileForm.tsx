@@ -1,17 +1,19 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { FormProvider, TextFieldElement, useForm } from 'react-hook-form-mui';
-import { COMMON_DISPLAY_TEXTS } from '@/lib/consts/displayTexts';
+import { COMMON_DISPLAY_TEXTS, EButtonTexts } from '@/lib/consts/displayTexts';
 import Typography from '@mui/material/Typography';
 import { EUserProfileFields, fields, formTitle } from './consts';
 import usePopulateUserDetails from './hooks/usePopulateUserDetails';
 import axios from 'axios';
 import { UpdateRequest } from 'firebase-admin/lib/auth/auth-config';
-import { toast } from 'react-toastify';
 import { UserProfileFormProps } from './types';
+import { useUserContext } from '@/lib/context/userContext';
+import { useToast } from '@/lib/hooks/useToast';
 
 const FormInner = () => {
   usePopulateUserDetails();
+  const { preferences } = useUserContext();
 
   return (
     <Stack sx={{ mt: 2 }} spacing={2} alignItems={'center'}>
@@ -33,12 +35,19 @@ const FormInner = () => {
         name={EUserProfileFields.MainPhone}
         required
       />
-      <Button type='submit'>{COMMON_DISPLAY_TEXTS.he.buttons.save}</Button>
+      <Button type='submit'>
+        {
+          COMMON_DISPLAY_TEXTS[preferences.lang || 'he'].buttons[
+            EButtonTexts.Save
+          ]
+        }
+      </Button>
     </Stack>
   );
 };
 
 export const UserProfileForm = ({ onClose }: UserProfileFormProps) => {
+  const { showSuccess, showError } = useToast();
   const form = useForm({
     defaultValues: {
       [EUserProfileFields.Name]: '',
@@ -52,10 +61,10 @@ export const UserProfileForm = ({ onClose }: UserProfileFormProps) => {
         displayName: values[EUserProfileFields.Name],
         phoneNumber: values[EUserProfileFields.MainPhone],
       } as UpdateRequest);
-      toast.success('Date Updated successfully');
+      showSuccess('profileUpdated');
       onClose();
     } catch (err) {
-      toast.error('Update not success');
+      showError('profileUpdateFailed');
     }
   });
   return (

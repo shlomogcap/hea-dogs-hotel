@@ -1,5 +1,42 @@
 import { ILang } from '@/lib/consts/displayTexts';
 
+export enum EInvitationStatus {
+  Draft = 'draft',
+  SendForConfirmation = 'send_for_confirmation',
+  Confirmed = 'confirmed',
+  Canceled = 'canceled',
+  Done = 'done',
+}
+
+export const INVITATION_STATUS_LABELS: Record<
+  ILang,
+  Record<EInvitationStatus, string>
+> = {
+  he: {
+    [EInvitationStatus.Draft]: 'טיוטה',
+    [EInvitationStatus.SendForConfirmation]: 'נשלח לאישור',
+    [EInvitationStatus.Confirmed]: 'אושר',
+    [EInvitationStatus.Canceled]: 'בוטל',
+    [EInvitationStatus.Done]: 'הושלם',
+  },
+  en: {
+    [EInvitationStatus.Draft]: 'Draft',
+    [EInvitationStatus.SendForConfirmation]: 'Send for confirmation',
+    [EInvitationStatus.Confirmed]: 'Confirmed',
+    [EInvitationStatus.Canceled]: 'Canceled',
+    [EInvitationStatus.Done]: 'Done',
+  },
+};
+
+/** MUI color name or hex for Chip/display */
+export const INVITATION_STATUS_COLORS: Record<EInvitationStatus, string> = {
+  [EInvitationStatus.Draft]: 'default',
+  [EInvitationStatus.SendForConfirmation]: 'info',
+  [EInvitationStatus.Confirmed]: 'success',
+  [EInvitationStatus.Canceled]: 'error',
+  [EInvitationStatus.Done]: 'primary',
+};
+
 export enum EInvitationFormSections {
   OwnerDetails = 'ownerDetails',
   DogDetails = 'dogDetails',
@@ -10,6 +47,7 @@ export enum EInvitationFormFields {
   OwnerId = 'ownerId',
   Phone = 'phone',
   Email = 'email',
+  Status = 'status',
   SDate = 'startDate',
   EDate = 'endDate',
   SHour = 'sHour',
@@ -41,6 +79,7 @@ export const DISPLAY_TEXTS: DispalyText = {
       [EInvitationFormFields.OwnerId]: 'ת.ז. בעלים',
       [EInvitationFormFields.Phone]: 'טלפון',
       [EInvitationFormFields.Email]: 'אימייל',
+      [EInvitationFormFields.Status]: 'סטטוס',
       [EInvitationFormFields.SDate]: 'תאריך כניסה',
       [EInvitationFormFields.EDate]: 'תאריך יציאה',
       [EInvitationFormFields.SHour]: 'שעת כניסה',
@@ -57,6 +96,7 @@ export const DISPLAY_TEXTS: DispalyText = {
       [EInvitationFormFields.OwnerId]: 'Owner Name',
       [EInvitationFormFields.Phone]: 'Phone',
       [EInvitationFormFields.Email]: 'Email',
+      [EInvitationFormFields.Status]: 'Status',
       [EInvitationFormFields.SDate]: 'Checkin Date',
       [EInvitationFormFields.EDate]: 'Checkout Date',
       [EInvitationFormFields.SHour]: 'Checkin Hour',

@@ -16,6 +16,8 @@ const DogForm = ({ prefix = '', disabled }: DogFormProps) => {
   const {
     preferences: { lang = 'he' },
   } = useUserContext();
+  const genderOptions = DISPLAY_TEXTS.genderOptions[lang];
+
   return (
     <Stack spacing={2}>
       <TextFieldElement
@@ -28,7 +30,12 @@ const DogForm = ({ prefix = '', disabled }: DogFormProps) => {
       <AutocompleteElement
         label={DISPLAY_TEXTS.formFields[lang][EDogFormFields.DogGender]}
         name={prefix + EDogFormFields.DogGender}
-        options={DISPLAY_TEXTS.genderOptions[lang]}
+        options={genderOptions}
+        transform={{
+          input: (value: string) =>
+            genderOptions.find((o) => o.value === value) ?? null,
+          output: (_e, value) => (value?.value ?? '') as string,
+        }}
         autocompleteProps={{
           fullWidth: true,
           getOptionLabel: (v) => v.label,

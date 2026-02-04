@@ -1,37 +1,64 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import DogForm from '../DogForm';
 import { useRouter } from 'next/router';
-import IconButton from '@mui/material/IconButton';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useUserContext } from '@/lib/context/userContext';
-import { Button } from '@mui/material';
-// import axios from 'axios';
+import { Button, Stack } from '@mui/material';
+import { COMMON_DISPLAY_TEXTS, EButtonTexts } from '@/lib/consts/displayTexts';
+import { useToast } from '@/lib/hooks/useToast';
+import axios from 'axios';
+import { CreateDogsBody } from '@/pages/api/dogs/create';
+import { uuid } from '@/lib/utils/uuid';
+import { EDogFormFields } from '../DogForm/consts';
 
 const NewDogPage = () => {
   const form = useForm();
   const { preferences } = useUserContext();
   const router = useRouter();
-  const onSubmit = form.handleSubmit((values) => {
-    console.log(values);
-    // axios.post('/api/dogs/create', { ...values });
+  const { showSuccess, showError } = useToast();
+
+  const onSubmit = form.handleSubmit(async (values) => {
+    try {
+      const dogId = uuid();
+      const body: CreateDogsBody = [
+        {
+          id: dogId,
+          dogId,
+          dogName: values[EDogFormFields.DogName] ?? '',
+          dogGender: String(values[EDogFormFields.DogGender] ?? ''),
+          dogBread: values[EDogFormFields.DogBread] ?? '',
+          dogAge: String(values[EDogFormFields.DogAge] ?? ''),
+          dogPhysicalDescription:
+            values[EDogFormFields.DogPhysicalDescription] ?? '',
+        },
+      ];
+      const result = await axios.post('/api/dogs/create', body);
+      if (!result.data.success) throw new Error(result.data.message);
+      showSuccess('dogCreated');
+      router.push('/app/dogs');
+    } catch (err) {
+      showError('dogCreateFailed', (err as Error).message);
+    }
   });
 
   return (
     <FormProvider {...form}>
-      <IconButton
-        aria-label='Back to Dogs Page'
-        onClick={() => router.push('/app/dogs')}
-        sx={{ mb: 2 }}
-      >
-        <ArrowBackIcon
-          sx={{
-            transform: preferences.lang === 'he' ? 'scaleX(-1)' : 'none',
-          }}
-        />
-      </IconButton>
       <DogForm prefix='' />
-      <Button onClick={() => router.push('/app/dogs')}>בטל</Button>
-      <Button onClick={onSubmit}>שמור</Button>
+      <Stack direction='row' spacing={2} sx={{ mt: 2 }}>
+        <Button variant='outlined' onClick={() => router.push('/app/dogs')}>
+          {
+            COMMON_DISPLAY_TEXTS[preferences.lang || 'he'].buttons[
+              EButtonTexts.Cancel
+            ]
+          }
+        </Button>
+        <Button variant='contained' onClick={onSubmit}>
+          {
+            COMMON_DISPLAY_TEXTS[preferences.lang || 'he'].buttons[
+              EButtonTexts.Save
+            ]
+          }
+        </Button>
+      </Stack>
     </FormProvider>
   );
 };

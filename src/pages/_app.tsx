@@ -8,6 +8,8 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { IUsePreferences, UserProvider } from '@/lib/context/userContext';
 import { ToastContainer } from 'react-toastify';
 import CssBaseline from '@mui/material/CssBaseline';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 import { useState } from 'react';
 import BasePage from '@/lib/components/BasePage';
 
@@ -22,7 +24,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>HEA Dogs Hotel</title>
         <meta name='description' content='HEA Dogs Hotel App' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
-        <link rel='icon' href='/favicon.ico' />
+        <link rel='icon' href='/favicon.png' type='image/png' />
       </Head>
       <CssBaseline />
       <UserProvider
@@ -37,7 +39,20 @@ export default function App({ Component, pageProps }: AppProps) {
           <ModalProvider>
             <ToastContainer position='top-center' closeOnClick={false} />
             <BasePage>
-              {loading ? 'Loading...' : <Component {...pageProps} />}
+              {loading ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  minHeight: '60vh',
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <Component {...pageProps} />
+            )}
               {!user && !loading && <LoginModal {...({} as ILoginModalData)} />}
             </BasePage>
           </ModalProvider>

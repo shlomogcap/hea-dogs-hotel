@@ -1,26 +1,41 @@
 import InvitationForm from '@/lib/components/InvitationForm';
-import { CreateInvitationBody, IInvitationDoc } from '@/pages/api/dogs/create';
+import {
+  CreateInvitationBody,
+  IInvitationDoc,
+} from '@/pages/api/invitation/create';
+import { DogsProvider } from '@/lib/context/userDogsContext';
+import { useToast } from '@/lib/hooks/useToast';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 
 export default function NewInvitationRoute() {
-  const onCreate = useCallback(async (values: IInvitationDoc) => {
-    try {
-      const result = await axios.post('/api/invitation/create', {
-        ...values,
-      } as CreateInvitationBody);
-      if (!result.data.success) throw new Error(result.data.message);
-      toast.success('Invitation Created successfully');
-    } catch (err) {
-      toast.error('Invitation Failed to create' + (err as Error).message);
-    }
-  }, []);
-  const form = useForm({ defaultValues: {} });
+  const router = useRouter();
+  const { showSuccess, showError } = useToast();
+  const onCreate = useCallback(
+    async (values: IInvitationDoc) => {
+      try {
+        const result = await axios.post('/api/invitation/create', {
+          ...values,
+        } as CreateInvitationBody);
+        if (!result.data.success) throw new Error(result.data.message);
+        showSuccess('invitationCreated');
+        router.push('/app/invitations');
+      } catch (err) {
+        showError('invitationCreateFailed', (err as Error).message);
+      }
+    },
+    [router, showSuccess, showError],
+  );
+  const form = useForm({
+    defaultValues: { dogs: [], status: 'draft' as const },
+  });
   return (
-    <FormProvider {...form}>
-      <InvitationForm onFormSubmit={onCreate} />;
-    </FormProvider>
+    <DogsProvider>
+      <FormProvider {...form}>
+        <InvitationForm onFormSubmit={onCreate} />
+      </FormProvider>
+    </DogsProvider>
   );
 }

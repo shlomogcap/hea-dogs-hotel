@@ -1,6 +1,7 @@
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import {
+  SelectElement,
   TextFieldElement,
   useFieldArray,
   useFormContext,
@@ -10,25 +11,108 @@ import {
   DISPLAY_TEXTS,
   EInvitationFormFields,
   EInvitationFormSections,
+  EInvitationStatus,
+  INVITATION_STATUS_LABELS,
 } from './consts';
 import usePopulateUserDetails from './hooks/usePopulateUserDetails';
-import { COMMON_DISPLAY_TEXTS } from '@/lib/consts/displayTexts';
+import { COMMON_DISPLAY_TEXTS, EButtonTexts } from '@/lib/consts/displayTexts';
 import DogSection from './components/DogSection';
+import { useUserContext } from '@/lib/context/userContext';
+import { IDogDoc } from '@/pages/api/dogs/create';
+import { ADD_DOG_VALUE } from './components/DogSelect';
+import { useToast } from '@/lib/hooks/useToast';
+
+const DEFAULT_DOG_SLOT = {
+  selectDog: null as { value: string; label: string } | null,
+  dogName: '',
+  dogGender: null as { value: string; label: string } | null,
+  dogBread: '',
+  dogAge: '',
+  dogPhysicalDescription: '',
+};
+
+const ADD_DOG_SLOT_LABEL: Record<'he' | 'en', string> = {
+  he: 'הוספת כלב',
+  en: 'Add dog',
+};
+
+function buildDogsFromFormValues(
+  slots: Array<Record<string, unknown>>,
+): IDogDoc[] {
+  return slots
+    .filter((slot) => {
+      const sel = slot[EInvitationFormFields.SelectDog] as
+        | { value: string }
+        | string
+        | null
+        | undefined;
+      const id = typeof sel === 'object' && sel ? sel.value : sel;
+      return id && id !== ADD_DOG_VALUE;
+    })
+    .map((slot) => {
+      const sel = slot[EInvitationFormFields.SelectDog] as
+        | { value: string }
+        | string;
+      const id = typeof sel === 'object' ? sel.value : sel;
+      const gender = slot[EInvitationFormFields.DogGender] as
+        | { value: string }
+        | string
+        | undefined;
+      const genderValue =
+        typeof gender === 'object' && gender ? gender.value : gender ?? '';
+      return {
+        id,
+        dogId: id,
+        dogName: String(slot[EInvitationFormFields.DogName] ?? ''),
+        dogGender: genderValue,
+        dogBread: String(slot[EInvitationFormFields.DogBread] ?? ''),
+        dogAge: String(slot[EInvitationFormFields.DogAge] ?? ''),
+        dogPhysicalDescription: String(
+          slot[EInvitationFormFields.DogPhysicalDescription] ?? '',
+        ),
+      } as IDogDoc;
+    });
+}
 
 type InvitationFormProps = {
   disabled?: boolean;
   onFormSubmit: (values: any) => void;
+  /** Override submit button label (e.g. "Save" in edit mode) */
+  submitLabel?: string;
+  /** When true (edit existing): only dates and dogs are editable; owner and status are read-only; at least one dog required */
+  editOnlyDatesAndDogs?: boolean;
 };
 
-const InvitationForm = ({ disabled, onFormSubmit }: InvitationFormProps) => {
+const InvitationForm = ({
+  disabled,
+  onFormSubmit,
+  submitLabel,
+  editOnlyDatesAndDogs = false,
+}: InvitationFormProps) => {
   usePopulateUserDetails();
+  const { preferences } = useUserContext();
+  const { showError } = useToast();
   const { handleSubmit } = useFormContext();
-  const onSubmit = handleSubmit(onFormSubmit);
+  const onSubmit = handleSubmit((values) => {
+    const dogsList = buildDogsFromFormValues(values.dogs ?? []);
+    if (dogsList.length === 0) {
+      showError('invitationAtLeastOneDogRequired');
+      return;
+    }
+    const payload = {
+      ...values,
+      dogs: dogsList,
+    };
+    onFormSubmit(payload);
+  });
+  const ownerSectionDisabled = disabled || editOnlyDatesAndDogs;
   const {
     fields: dogs,
     append: appendDog,
     remove,
   } = useFieldArray({ name: 'dogs' });
+
+  const handleAppendDog = () => appendDog(DEFAULT_DOG_SLOT);
   return (
     <Box
       sx={{
@@ -56,7 +140,7 @@ const InvitationForm = ({ disabled, onFormSubmit }: InvitationFormProps) => {
           required
           fullWidth
           sx={{ minWidth: 0, width: '100%' }}
-          disabled={disabled}
+          disabled={ownerSectionDisabled}
         />
         <TextFieldElement
           label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.OwnerId]}
@@ -64,7 +148,7 @@ const InvitationForm = ({ disabled, onFormSubmit }: InvitationFormProps) => {
           required
           fullWidth
           sx={{ minWidth: 0, width: '100%' }}
-          disabled={disabled}
+          disabled={ownerSectionDisabled}
         />
         <TextFieldElement
           label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.Phone]}
@@ -72,7 +156,7 @@ const InvitationForm = ({ disabled, onFormSubmit }: InvitationFormProps) => {
           required
           fullWidth
           sx={{ minWidth: 0, width: '100%' }}
-          disabled={disabled}
+          disabled={ownerSectionDisabled}
         />
         <TextFieldElement
           label={DISPLAY_TEXTS.formFields.he[EInvitationFormFields.Email]}
@@ -90,6 +174,21 @@ const InvitationForm = ({ disabled, onFormSubmit }: InvitationFormProps) => {
           ]
         }
       >
+        <SelectElement
+          name={EInvitationFormFields.Status}
+          label={
+            DISPLAY_TEXTS.formFields[preferences?.lang ?? 'he'][
+              EInvitationFormFields.Status
+            ]
+          }
+          options={Object.values(EInvitationStatus).map((value) => ({
+            id: value,
+            label: INVITATION_STATUS_LABELS[preferences?.lang ?? 'he'][value],
+          }))}
+          fullWidth
+          sx={{ minWidth: 0, width: '100%' }}
+          disabled
+        />
         <TextFieldElement
           type='date'
           slotProps={{
@@ -156,20 +255,30 @@ const InvitationForm = ({ disabled, onFormSubmit }: InvitationFormProps) => {
             <DogSection
               key={prefix}
               prefix={prefix}
+              slotIndex={index}
               onRemove={() => remove(index)}
               disabled={disabled}
             />
           );
         })}
-        <FormSection>
-          <Button onClick={appendDog} fullWidth sx={{ mt: 2 }}>
-            הוספת כלב
-          </Button>
-        </FormSection>
+        {!disabled && (
+          <FormSection>
+            <Button onClick={handleAppendDog} fullWidth sx={{ mt: 2 }}>
+              {ADD_DOG_SLOT_LABEL[preferences?.lang ?? 'he']}
+            </Button>
+          </FormSection>
+        )}
       </FormSection>
       {!disabled && (
-        <Button onClick={onSubmit} fullWidth sx={{ mt: 2 }}>
-          {COMMON_DISPLAY_TEXTS.he.buttons.add}
+        <Button
+          onClick={onSubmit}
+          variant='contained'
+          sx={{ mt: 2, width: 320 }}
+        >
+          {submitLabel ??
+            COMMON_DISPLAY_TEXTS[preferences.lang || 'he'].buttons[
+              EButtonTexts.Add
+            ]}
         </Button>
       )}
     </Box>

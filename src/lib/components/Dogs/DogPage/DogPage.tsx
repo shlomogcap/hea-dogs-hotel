@@ -9,17 +9,49 @@ import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useUserContext } from '@/lib/context/userContext';
 import { useEffect } from 'react';
+import { Button, Stack } from '@mui/material';
+import { COMMON_DISPLAY_TEXTS, EButtonTexts } from '@/lib/consts/displayTexts';
+import { useToast } from '@/lib/hooks/useToast';
+import axios from 'axios';
+import type { UpdateDogBody } from '@/pages/api/dogs/update';
+import { EDogFormFields } from '../DogForm/consts';
 
 const DogPageInner = () => {
   const { data } = useDogPageContext();
   const { preferences } = useUserContext();
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const form = useForm({ defaultValues: data.currentDog ?? {} });
-  const { reset } = form;
+  const { reset, handleSubmit } = form;
 
   useEffect(() => {
-    reset(data.currentDog);
+    reset(data.currentDog ?? {});
   }, [data.currentDog, reset]);
+
+  const onSave = handleSubmit(async (values) => {
+    const dogId = data.currentDog?.id ?? data.currentDog?.dogId;
+    if (!dogId) {
+      showError('dogNotLoaded');
+      return;
+    }
+    const payload: UpdateDogBody = {
+      dogId,
+      dogName: values[EDogFormFields.DogName] ?? '',
+      dogGender: String(values[EDogFormFields.DogGender] ?? ''),
+      dogBread: values[EDogFormFields.DogBread] ?? '',
+      dogAge: String(values[EDogFormFields.DogAge] ?? ''),
+      dogPhysicalDescription:
+        values[EDogFormFields.DogPhysicalDescription] ?? '',
+    };
+
+    try {
+      const result = await axios.patch('/api/dogs/update', payload);
+      if (!result.data.success) throw new Error(result.data.message);
+      showSuccess('dogUpdated');
+    } catch (err) {
+      showError('dogSaveFailed', (err as Error).message);
+    }
+  });
 
   return (
     <FormProvider {...form}>
@@ -35,6 +67,15 @@ const DogPageInner = () => {
         />
       </IconButton>
       <DogForm />
+      <Stack direction='row' spacing={2} sx={{ mt: 2 }}>
+        <Button variant='contained' onClick={onSave}>
+          {
+            COMMON_DISPLAY_TEXTS[preferences.lang ?? 'he'].buttons[
+              EButtonTexts.Save
+            ]
+          }
+        </Button>
+      </Stack>
     </FormProvider>
   );
 };

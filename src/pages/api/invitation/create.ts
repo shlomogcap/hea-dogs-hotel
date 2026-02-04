@@ -7,11 +7,19 @@ import { addDoc, collection } from 'firebase/firestore';
 import { WithId } from '../_utils';
 import { IDogDoc } from '../dogs/create';
 
+export type InvitationStatus =
+  | 'draft'
+  | 'send_for_confirmation'
+  | 'confirmed'
+  | 'canceled'
+  | 'done';
+
 export type IInvitationDoc = WithId<{
   ownerName: string;
   ownerId: string;
   phone: string;
   email: string;
+  status: InvitationStatus;
   startDate: string;
   endDate: string;
   sHour: string;
@@ -36,7 +44,11 @@ const createInvitation = async (
       firestore,
       `/workspace/${req.authedUser?.uid}/invitations`,
     );
-    const result = await addDoc(invitationsCol, req.body);
+    const body = {
+      ...req.body,
+      status: req.body.status ?? 'draft',
+    };
+    const result = await addDoc(invitationsCol, body);
     return res.status(200).json({
       success: true,
       message: 'invitation created',
