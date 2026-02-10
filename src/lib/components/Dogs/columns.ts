@@ -50,7 +50,6 @@ const DOGS_COLUMNS: Partial<Record<DogsLabelsFields, TableColumnNoField>> = {
   dogAge: { width: 150, align },
   dogBread: { width: 150, align },
   dogPhysicalDescription: { width: 150, align },
-  dogId: { width: 150, align },
 };
 
 const getColumns = (lang: ILang) =>
