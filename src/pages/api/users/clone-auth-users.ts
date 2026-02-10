@@ -24,7 +24,7 @@ const cloneAuthUsers = async (
     const usersQuery = await auth().listUsers();
     const preparedUsers = usersQuery.users.map((userData) => ({
       [ECommonFields.Id]: userData.uid,
-      [EUserFields.Title]: userData.displayName ?? '',
+      [EUserFields.Name]: userData.displayName ?? '',
       [EUserFields.Phone]: userData.phoneNumber ?? '',
       [EUserFields.Email]: userData.email ?? '',
       [ECommonFields.UpdatedBy]: verifiedAuthUser.uid,

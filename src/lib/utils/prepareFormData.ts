@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { ECommonFields } from '../consts/commonFields';
+import { ECommonFields } from '@/lib/consts/commonFields';
 import { auth } from '../firebase';
 
 type PreparedFormData<K extends string = string> = { [key in K]: unknown };
