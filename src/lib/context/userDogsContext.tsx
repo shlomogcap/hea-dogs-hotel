@@ -40,7 +40,7 @@ export const DogsProvider = ({
     );
 
     const unsubscribe = onSnapshotHandler({
-      collectionRef,
+      queryRef: collectionRef,
       setIsLoading,
       setData,
       setError,

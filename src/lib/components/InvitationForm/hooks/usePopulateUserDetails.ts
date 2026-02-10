@@ -1,6 +1,6 @@
 import { useUserContext } from '@/lib/context/userContext';
 import { useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form-mui';
 import { EInvitationFormFields } from '../consts';
 
 const usePopulateUserDetails = () => {

@@ -40,7 +40,7 @@ export const InvitationsProvider = ({
     );
 
     const unsubscribe = onSnapshotHandler({
-      collectionRef,
+      queryRef: collectionRef,
       setIsLoading,
       setData,
       setError,

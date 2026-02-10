@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { firestore } from '@firebase';
 import { collection } from 'firebase/firestore';
-import { IUserDoc } from '../consts/users';
+import { IUserDoc } from '@/lib/consts/users';
 import { onSnapshotHandler } from '../utils/onSnapshotHandler';
 
 type IUsersContext = {
@@ -37,7 +37,7 @@ export const UsersProvider = ({
     const collectionRef = collection(firestore, 'users');
 
     const unsubscribe = onSnapshotHandler({
-      collectionRef,
+      queryRef: collectionRef,
       setIsLoading,
       setData,
       setError,

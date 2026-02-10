@@ -76,7 +76,7 @@ export const InvitationPageProvider = ({
     );
 
     const otherInvitationsSubscription = onSnapshotHandler({
-      collectionRef: invitationsCollectionRef,
+      queryRef: invitationsCollectionRef,
       setIsLoading,
       setData: setOtherInvitationsData,
       setError,
@@ -88,7 +88,7 @@ export const InvitationPageProvider = ({
     );
 
     const dogsSubscription = onSnapshotHandler({
-      collectionRef: dogsCollectionRef,
+      queryRef: dogsCollectionRef,
       setIsLoading,
       setData: setDogs,
       setError,
