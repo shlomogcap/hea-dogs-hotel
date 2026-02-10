@@ -1,3 +1,5 @@
+import Home from '@/lib/components/Home';
+
 export default function AppRoute() {
-  return <>HOME</>;
+  return <Home />;
 }

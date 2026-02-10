@@ -40,19 +40,19 @@ export default function App({ Component, pageProps }: AppProps) {
             <ToastContainer position='top-center' closeOnClick={false} />
             <BasePage>
               {loading ? (
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  minHeight: '60vh',
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            ) : (
-              <Component {...pageProps} />
-            )}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '60vh',
+                  }}
+                >
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Component {...pageProps} />
+              )}
               {!user && !loading && <LoginModal {...({} as ILoginModalData)} />}
             </BasePage>
           </ModalProvider>

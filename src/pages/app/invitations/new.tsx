@@ -1,4 +1,5 @@
 import InvitationForm from '@/lib/components/InvitationForm';
+import SSRGuard from '@/lib/components/common/SSRGuard/SSRGuard';
 import {
   CreateInvitationBody,
   IInvitationDoc,
@@ -8,7 +9,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form-mui';
 
 export default function NewInvitationRoute() {
   const router = useRouter();
@@ -33,9 +34,11 @@ export default function NewInvitationRoute() {
   });
   return (
     <DogsProvider>
-      <FormProvider {...form}>
-        <InvitationForm onFormSubmit={onCreate} />
-      </FormProvider>
+      <SSRGuard>
+        <FormProvider {...form}>
+          <InvitationForm onFormSubmit={onCreate} />
+        </FormProvider>
+      </SSRGuard>
     </DogsProvider>
   );
 }
