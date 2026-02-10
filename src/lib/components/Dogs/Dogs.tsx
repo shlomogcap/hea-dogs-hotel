@@ -9,6 +9,8 @@ import { useUserContext } from '@/lib/context/userContext';
 import { IDogDoc } from '@/pages/api/dogs/create';
 import ListItem from '../common/ListItem';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import Box from '@mui/material/Box';
 
@@ -42,14 +44,34 @@ const ADD_NEW_DOG_LABEL: Record<'he' | 'en', string> = {
   en: 'Add new dog',
 };
 
+const BACK_TO_DASHBOARD_LABEL: Record<'he' | 'en', string> = {
+  he: 'חזרה לבית',
+  en: 'Back to dashboard',
+};
+
 const DogsInner = () => {
   const { data, isLoading } = useDogsContext();
   const { preferences } = useUserContext();
   const router = useRouter();
+  const fromHome = router.query.from === 'home';
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const columns = getColumns(preferences.lang ?? 'he');
   const lang = preferences?.lang ?? 'he';
+
+  const backButton = fromHome ? (
+    <IconButton
+      aria-label={BACK_TO_DASHBOARD_LABEL[lang]}
+      onClick={() => router.push('/app')}
+      sx={{
+        mb: 1,
+        mr: 1,
+        ...(preferences?.lang === 'he' ? { transform: 'scaleX(-1)' } : {}),
+      }}
+    >
+      <ArrowBackIcon />
+    </IconButton>
+  ) : null;
 
   const addNewDogButton = (
     <Button
@@ -68,16 +90,23 @@ const DogsInner = () => {
   if (isMobile) {
     return (
       <>
+        {backButton}
         <Box sx={{ mb: 2 }}>{addNewDogButton}</Box>
         <DogsList
           data={data}
-          onRowClick={({ id }) => router.push(`/app/dogs/${id}`)}
+          onRowClick={({ id }) =>
+            router.push({
+              pathname: `/app/dogs/${id}`,
+              ...(fromHome ? { query: { from: 'home' } } : {}),
+            })
+          }
         />
       </>
     );
   }
   return (
     <>
+      {backButton}
       <Box sx={{ mb: 2 }}>{addNewDogButton}</Box>
       <Table
         loading={isLoading}
@@ -85,7 +114,10 @@ const DogsInner = () => {
         columns={columns}
         disableRowSelectionOnClick
         onRowClick={({ id }) => {
-          router.push(`/app/dogs/${id}`);
+          router.push({
+            pathname: `/app/dogs/${id}`,
+            ...(fromHome ? { query: { from: 'home' } } : {}),
+          });
         }}
       />
     </>

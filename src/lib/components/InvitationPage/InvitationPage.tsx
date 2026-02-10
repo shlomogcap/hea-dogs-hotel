@@ -4,7 +4,7 @@ import {
 } from '@/lib/context/InvitationPageContext';
 import { useRouter } from 'next/router';
 import InvitationForm from '../InvitationForm';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form-mui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -16,6 +16,7 @@ import { DogsProvider } from '@/lib/context/userDogsContext';
 import { useToast } from '@/lib/hooks/useToast';
 import axios from 'axios';
 import { COMMON_DISPLAY_TEXTS, EButtonTexts } from '@/lib/consts/displayTexts';
+import SSRGuard from '../common/SSRGuard/SSRGuard';
 
 /** Convert invitation doc from BE to form shape (dogs array with selectDog, dogGender option, etc.) */
 function invitationToFormValues(
@@ -47,6 +48,7 @@ const InvitationPageInner = () => {
   const { data } = useInvitationPageContext();
   const { preferences } = useUserContext();
   const router = useRouter();
+  const fromHome = router.query.from === 'home';
   const { showSuccess, showError } = useToast();
   const [isEditMode, setIsEditMode] = useState(false);
   const lang = (preferences?.lang ?? 'he') as 'he' | 'en';
@@ -90,47 +92,51 @@ const InvitationPageInner = () => {
   );
 
   return (
-    <FormProvider {...form}>
-      <IconButton
-        aria-label='Back to invitations'
-        onClick={() => router.push('/app/invitations')}
-        sx={{ mb: 2 }}
-      >
-        <ArrowBackIcon
-          sx={{
-            transform: preferences.lang === 'he' ? 'scaleX(-1)' : 'none',
-          }}
-        />
-      </IconButton>
-      {!isEditMode && (
-        <Button
-          variant='contained'
-          onClick={() => setIsEditMode(true)}
+    <SSRGuard>
+      <FormProvider {...form}>
+        <IconButton
+          aria-label={fromHome ? 'Back to dashboard' : 'Back to invitations'}
+          onClick={() =>
+            router.push(fromHome ? '/app' : '/app/invitations')
+          }
           sx={{ mb: 2 }}
         >
-          {lang === 'he' ? 'ערוך' : 'Edit'}
-        </Button>
-      )}
-      {isEditMode && (
-        <Button
-          variant='outlined'
-          onClick={() => setIsEditMode(false)}
-          sx={{ mb: 2, mr: 1 }}
-        >
-          {COMMON_DISPLAY_TEXTS[lang].buttons[EButtonTexts.Cancel]}
-        </Button>
-      )}
-      <InvitationForm
-        onFormSubmit={isEditMode ? onSave : () => {}}
-        disabled={!isEditMode}
-        submitLabel={
-          isEditMode
-            ? COMMON_DISPLAY_TEXTS[lang].buttons[EButtonTexts.Save]
-            : undefined
-        }
-        editOnlyDatesAndDogs={isEditMode}
-      />
-    </FormProvider>
+          <ArrowBackIcon
+            sx={{
+              transform: preferences.lang === 'he' ? 'scaleX(-1)' : 'none',
+            }}
+          />
+        </IconButton>
+        {!isEditMode && (
+          <Button
+            variant='contained'
+            onClick={() => setIsEditMode(true)}
+            sx={{ mb: 2 }}
+          >
+            {lang === 'he' ? 'ערוך' : 'Edit'}
+          </Button>
+        )}
+        {isEditMode && (
+          <Button
+            variant='outlined'
+            onClick={() => setIsEditMode(false)}
+            sx={{ mb: 2, mr: 1 }}
+          >
+            {COMMON_DISPLAY_TEXTS[lang].buttons[EButtonTexts.Cancel]}
+          </Button>
+        )}
+        <InvitationForm
+          onFormSubmit={isEditMode ? onSave : () => {}}
+          disabled={!isEditMode}
+          submitLabel={
+            isEditMode
+              ? COMMON_DISPLAY_TEXTS[lang].buttons[EButtonTexts.Save]
+              : undefined
+          }
+          editOnlyDatesAndDogs={isEditMode}
+        />
+      </FormProvider>
+    </SSRGuard>
   );
 };
 

@@ -20,6 +20,7 @@ const DogPageInner = () => {
   const { data } = useDogPageContext();
   const { preferences } = useUserContext();
   const router = useRouter();
+  const fromHome = router.query.from === 'home';
   const { showSuccess, showError } = useToast();
   const form = useForm({ defaultValues: data.currentDog ?? {} });
   const { reset, handleSubmit } = form;
@@ -56,8 +57,10 @@ const DogPageInner = () => {
   return (
     <FormProvider {...form}>
       <IconButton
-        aria-label='Back to Dogs Page'
-        onClick={() => router.push('/app/dogs')}
+        aria-label={fromHome ? 'Back to dashboard' : 'Back to Dogs Page'}
+        onClick={() =>
+          router.push(fromHome ? '/app' : '/app/dogs')
+        }
         sx={{ mb: 2 }}
       >
         <ArrowBackIcon
