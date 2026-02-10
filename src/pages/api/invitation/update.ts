@@ -33,7 +33,7 @@ const updateInvitation = async (
       `/workspace/${req.authedUser?.uid}/invitations/${id}`,
     );
     // User editing invitation resets status to draft (admin can use update-status for transitions)
-    const payload = { ...updates, status: 'draft' } as Record<string, unknown>;
+    const payload = { ...updates, status: 'draft' };
     await updateDoc(invRef, payload);
     return res.status(200).json({
       success: true,

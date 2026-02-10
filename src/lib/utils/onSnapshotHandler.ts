@@ -1,24 +1,42 @@
-import { CollectionReference, onSnapshot } from 'firebase/firestore';
+import {
+  CollectionReference,
+  DocumentSnapshot,
+  onSnapshot,
+  Query,
+} from 'firebase/firestore';
 import { Dispatch, SetStateAction } from 'react';
 import { toast } from 'react-toastify';
 
-type IOnSnapshotHanderArgs = {
-  collectionRef: CollectionReference;
+type IOnSnapshotHanderArgs<T = { id: string }> = {
+  /** Collection or collection group query */
+  queryRef: Query | CollectionReference;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
-  setData: Dispatch<SetStateAction<any[]>>;
+  setData: Dispatch<SetStateAction<T[]>>;
   setError: Dispatch<SetStateAction<string>>;
   generalErrorMessage?: string;
+  /** Map document to list item (e.g. add ownerId from path). Default: { ...data(), path, id } */
+  mapDoc?: (doc: DocumentSnapshot) => T;
+  /** Row key for dedup/update/remove. Default: (item) => item.id */
+  getRowKey?: (item: T) => string;
 };
 
-export const onSnapshotHandler = ({
-  collectionRef,
+const defaultMapDoc = (doc: DocumentSnapshot) => ({
+  ...doc.data(),
+  path: doc.ref.path,
+  id: doc.id,
+});
+
+export const onSnapshotHandler = <T = { id: string }>({
+  queryRef,
   setIsLoading,
   setData,
   setError,
   generalErrorMessage = '',
-}: IOnSnapshotHanderArgs) =>
+  mapDoc,
+  getRowKey,
+}: IOnSnapshotHanderArgs<T>) =>
   onSnapshot(
-    collectionRef,
+    queryRef,
     (snapshot) => {
       setIsLoading(true);
 
@@ -26,26 +44,28 @@ export const onSnapshotHandler = ({
         setData([]);
         setIsLoading(false);
       } else {
+        const toItem =
+          mapDoc ?? (defaultMapDoc as (doc: DocumentSnapshot) => T);
+        const toKey = getRowKey ?? ((item: T) => (item as { id: string }).id);
+
         snapshot.docChanges().forEach((change) => {
-          const docData = {
-            ...change.doc.data(),
-            path: change.doc.ref.path,
-            id: change.doc.id,
-          };
+          const docData = toItem(change.doc);
+          const key = toKey(docData);
           switch (change.type) {
             case 'added':
-              setData((prevData) => [...prevData, docData]);
+              setData((prevData) => {
+                if (prevData.some((i) => toKey(i) === key)) return prevData;
+                return [...prevData, docData];
+              });
               break;
             case 'modified':
               setData((prevData) =>
-                prevData.map((item) =>
-                  item.id === docData.id ? docData : item,
-                ),
+                prevData.map((item) => (toKey(item) === key ? docData : item)),
               );
               break;
             case 'removed':
               setData((prevData) =>
-                prevData.filter((item) => item.id !== docData.id),
+                prevData.filter((item) => toKey(item) !== key),
               );
               break;
             default:
