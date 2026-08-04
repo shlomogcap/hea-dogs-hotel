@@ -1,12 +1,13 @@
 import { ECommonFields } from '@/lib/consts/commonFields';
 import { EUserFields } from '@/lib/consts/users';
 import dayjs from 'dayjs';
-import { auth, firestore } from 'firebase-admin';
+import admin from '@/lib/firebase/admin';
+import type { UserRecord } from 'firebase-admin/auth';
 import { FirebaseError } from 'firebase/app';
 import nookies from 'nookies';
-import { handler } from '../middleware/handler';
-import { HttpMethod, methodsGuard } from '../middleware/method';
-import { isAuthedUser } from '../middleware/isAuthedUser';
+import { handler } from '@/lib/api/middleware/handler';
+import { HttpMethod, methodsGuard } from '@/lib/api/middleware/method';
+import { isAuthedUser } from '@/lib/api/middleware/isAuthedUser';
 
 type Data = {
   success: boolean;
@@ -20,9 +21,9 @@ const cloneAuthUsers = async (
 ) => {
   try {
     const { token } = nookies.get({ req });
-    const verifiedAuthUser = await auth().verifyIdToken(token);
-    const usersQuery = await auth().listUsers();
-    const preparedUsers = usersQuery.users.map((userData) => ({
+    const verifiedAuthUser = await admin.auth().verifyIdToken(token);
+    const usersQuery = await admin.auth().listUsers();
+    const preparedUsers = usersQuery.users.map((userData: UserRecord) => ({
       [ECommonFields.Id]: userData.uid,
       [EUserFields.Name]: userData.displayName ?? '',
       [EUserFields.Phone]: userData.phoneNumber ?? '',
@@ -30,11 +31,13 @@ const cloneAuthUsers = async (
       [ECommonFields.UpdatedBy]: verifiedAuthUser.uid,
       [ECommonFields.UpdatedAt]: dayjs().toISOString(),
     }));
-    const batch = firestore().batch();
-    preparedUsers.forEach(({ id, ...userData }) => {
-      const docRef = firestore().doc(`users/${id}`);
-      batch.set(docRef, userData, { merge: true });
-    });
+    const batch = admin.firestore().batch();
+    preparedUsers.forEach(
+      ({ id, ...userData }: (typeof preparedUsers)[number]) => {
+        const docRef = admin.firestore().doc(`users/${id}`);
+        batch.set(docRef, userData, { merge: true });
+      },
+    );
     const writes = await batch.commit();
     const totalWrites = writes.length;
     return res.status(totalWrites ? 201 : 200).json({

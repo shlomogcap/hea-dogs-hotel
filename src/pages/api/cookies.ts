@@ -1,7 +1,7 @@
 import nookies from 'nookies';
-import { HttpMethod, methodsGuard } from './middleware/method';
-import { handler } from './middleware/handler';
-import { isAuthedUser } from './middleware/isAuthedUser';
+import { HttpMethod, methodsGuard } from '@/lib/api/middleware/method';
+import { handler } from '@/lib/api/middleware/handler';
+import { isAuthedUser } from '@/lib/api/middleware/isAuthedUser';
 
 type CookiesData = {
   [key: string]: string;

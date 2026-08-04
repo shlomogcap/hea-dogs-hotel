@@ -1,9 +1,9 @@
-import { auth } from 'firebase-admin';
+import admin from '@/lib/firebase/admin';
 import { FirebaseError } from 'firebase/app';
-import { handler } from '../middleware/handler';
-import { HttpMethod, methodsGuard } from '../middleware/method';
-import { isAuthedUser } from '../middleware/isAuthedUser';
-import { UpdateRequest } from 'firebase-admin/lib/auth/auth-config';
+import { handler } from '@/lib/api/middleware/handler';
+import { HttpMethod, methodsGuard } from '@/lib/api/middleware/method';
+import { isAuthedUser } from '@/lib/api/middleware/isAuthedUser';
+import { UpdateRequest } from 'firebase-admin/auth';
 
 type Data = {
   success: boolean;
@@ -20,7 +20,7 @@ const updateUser = async (
     if (!uid) {
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
-    await auth().updateUser(uid, req.body);
+    await admin.auth().updateUser(uid, req.body);
     return res.status(200).json({
       success: true,
       message: 'user data updated',

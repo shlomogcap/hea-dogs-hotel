@@ -1,4 +1,4 @@
-import { PROTOCOL_HEADER } from './_consts';
+import { PROTOCOL_HEADER } from './consts';
 
 export const getAbsoluteApiPath = ({ headers }: NextApiRequest, path: string) =>
   `${headers[PROTOCOL_HEADER]}://${headers.host}/api/${path}`;

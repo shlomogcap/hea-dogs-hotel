@@ -5,7 +5,7 @@ import Dialog from '@mui/material/Dialog';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import { useRouter } from 'next/router';
-import { forwardRef, PropsWithChildren, useState } from 'react';
+import { forwardRef, PropsWithChildren, useState, type JSX } from 'react';
 import { TransitionProps } from '@mui/material/transitions';
 import Slide from '@mui/material/Slide';
 import DialogContent from '@mui/material/DialogContent';
@@ -25,7 +25,7 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import HomeIcon from '@mui/icons-material/Home';
 import PetsIcon from '@mui/icons-material/Pets';
 import EventNoteIcon from '@mui/icons-material/EventNote';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -142,11 +142,10 @@ export const BasePage = ({ children }: PropsWithChildren) => {
       <Dialog
         fullScreen
         open={userProfileOpen}
-        TransitionComponent={Transition}
-        disableEscapeKeyDown={false}
+        slots={{ transition: Transition }}
         onClose={() => setUserProfileOpen(false)}
       >
-        <DialogTitle alignContent={'end'}>
+        <DialogTitle sx={{ textAlign: 'end' }}>
           <IconButton
             color='inherit'
             onClick={() => setUserProfileOpen(false)}

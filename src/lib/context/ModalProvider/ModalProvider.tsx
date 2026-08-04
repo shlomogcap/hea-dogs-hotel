@@ -1,5 +1,4 @@
 import { useContext, useState, createContext } from 'react';
-import { EModalName } from './ModalName';
 import {
   IModalContext,
   IModalData,

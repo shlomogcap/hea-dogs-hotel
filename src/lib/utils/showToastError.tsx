@@ -12,7 +12,7 @@ export const showToastError = (
   if (err instanceof FirebaseError || err instanceof AxiosError) {
     errorMessages.push(`${err.code}: ${err.message}`);
   } else if (err instanceof z.ZodError) {
-    Object.entries(err.formErrors.fieldErrors).forEach(([field, errors]) => {
+    Object.entries(err.flatten().fieldErrors as Record<string, string[]>).forEach(([field, errors]) => {
       const fieldDisplayText = getEnumMemberOrSelf(field, fieldsDisplayTexts!);
       errorMessages?.push(`${fieldDisplayText} : ${errors?.join(' , ')}\n`);
     });

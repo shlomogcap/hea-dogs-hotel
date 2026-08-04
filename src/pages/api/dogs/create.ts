@@ -1,10 +1,10 @@
 import { FirebaseError } from 'firebase/app';
-import { handler } from '../middleware/handler';
-import { HttpMethod, methodsGuard } from '../middleware/method';
-import { isAuthedUser } from '../middleware/isAuthedUser';
+import { handler } from '@/lib/api/middleware/handler';
+import { HttpMethod, methodsGuard } from '@/lib/api/middleware/method';
+import { isAuthedUser } from '@/lib/api/middleware/isAuthedUser';
 import { firestore } from '@/lib/firebase';
 import { collection, writeBatch, doc } from 'firebase/firestore';
-import { WithId } from '../_utils';
+import { WithId } from '@/lib/api/utils';
 import { uuid } from '@/lib/utils/uuid';
 
 export type IDogDoc = WithId<{

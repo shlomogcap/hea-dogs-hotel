@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import { EUserProfileFields, fields, formTitle } from './consts';
 import usePopulateUserDetails from './hooks/usePopulateUserDetails';
 import axios from 'axios';
-import { UpdateRequest } from 'firebase-admin/lib/auth/auth-config';
+import { UpdateRequest } from 'firebase-admin/auth';
 import { UserProfileFormProps } from './types';
 import { useUserContext } from '@/lib/context/userContext';
 import { useToast } from '@/lib/hooks/useToast';
@@ -16,7 +16,7 @@ const FormInner = () => {
   const { preferences } = useUserContext();
 
   return (
-    <Stack sx={{ mt: 2 }} spacing={2} alignItems={'center'}>
+    <Stack sx={{ mt: 2, alignItems: 'center' }} spacing={2}>
       <Typography variant='h5'>{formTitle.he}</Typography>
       <TextFieldElement
         label={fields.he[EUserProfileFields.Name]}
@@ -63,7 +63,7 @@ export const UserProfileForm = ({ onClose }: UserProfileFormProps) => {
       } as UpdateRequest);
       showSuccess('profileUpdated');
       onClose();
-    } catch (err) {
+    } catch (_err) {
       showError('profileUpdateFailed');
     }
   });

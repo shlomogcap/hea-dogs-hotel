@@ -1,5 +1,5 @@
-import { handler } from './middleware/handler';
-import { HttpMethod, methodsGuard } from './middleware/method';
+import { handler } from '@/lib/api/middleware/handler';
+import { HttpMethod, methodsGuard } from '@/lib/api/middleware/method';
 
 type Data = {
   message: string;

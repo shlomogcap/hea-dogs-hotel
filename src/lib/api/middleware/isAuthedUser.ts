@@ -14,7 +14,7 @@ export const isAuthedUser =
       req.authedUser = authedUser;
       req.authedUsertoken = token;
       next();
-    } catch (err) {
+    } catch (_err) {
       res.status(401).json({
         success: false,
         message: `Unauthorized user`,

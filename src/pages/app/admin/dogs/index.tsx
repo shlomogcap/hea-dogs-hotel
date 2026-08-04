@@ -81,7 +81,7 @@ const AdminDogsInner = () => {
           byOwner.map(({ ownerId, dogs: ownerDogs }) => (
             <Accordion key={ownerId} defaultExpanded={byOwner.length <= 5}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography fontWeight={500}>
+                <Typography sx={{ fontWeight: 500 }}>
                   {OWNER_HEADING_LABEL[lang]}: {ownerId}
                 </Typography>
                 <Typography sx={{ color: 'text.secondary', ml: 1 }}>

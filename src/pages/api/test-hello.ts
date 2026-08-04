@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAbsoluteApiPath } from './_utils';
+import { getAbsoluteApiPath } from '@/lib/api/utils';
 
 export default async function handler(
   req: NextApiRequest,
